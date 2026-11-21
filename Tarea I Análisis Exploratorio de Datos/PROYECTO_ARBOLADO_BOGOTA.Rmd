@@ -1,0 +1,511 @@
+---
+title: "Análisis Exploratorio de Datos del Censo del Arbolado Urbano de Bogotá D.C. (2005 - 2007)"
+author:
+  - "Garcia Zorro David Santiago"
+date: "2026-11-19"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE,
+                      fig.align = "center")
+
+# Función auxiliar para mostrar números con formato colombiano (1.234,56)
+fmt <- function(x, d = 0) {
+  format(round(x, d), big.mark = ".", decimal.mark = ",", nsmall = d, trim = TRUE)
+}
+```
+
+# Introducción
+
+## Planteamiento del problema
+
+El arbolado urbano cumple funciones ambientales fundamentales en una ciudad: regula la temperatura, captura contaminantes y dióxido de carbono, aporta sombra, reduce el ruido y sostiene la fauna urbana. En una ciudad de las dimensiones de Bogotá D.C., conocer cuántos individuos vegetales existen, de qué tipo son y cuál es su porte (altura) es indispensable para planificar su manejo, mantenimiento y renovación.
+
+Entre septiembre de 2005 y septiembre de 2007 se realizó el *Censo del Arbolado Urbano de Bogotá D.C. (CAU)*, cuyos microdatos están disponibles en la plataforma Microdatos del DANE. Sin embargo, estos datos se entregan en un archivo de texto sin encabezados, con 65 variables, columnas completamente vacías y categorías no informadas, por lo que no pueden analizarse directamente sin un proceso previo de limpieza y exploración.
+
+Por lo anterior, este trabajo busca responder la siguiente pregunta: **¿cómo se distribuyen la altura y el tipo de vegetación (árbol, arbusto, palma) del arbolado urbano de Bogotá registrado en el censo 2005 - 2007, y cuáles son las áreas geográficas que concentran el mayor número de individuos?**
+
+## Objetivo general
+
+Realizar un análisis exploratorio de los datos del Censo del Arbolado Urbano de Bogotá D.C. 2005 - 2007 (Fase IV) mediante R y R Markdown, para caracterizar la altura y el tipo de vegetación del arbolado e identificar las áreas geográficas con mayor número de individuos.
+
+## Objetivos específicos
+
+1. Describir el conjunto de datos del DANE y seleccionar una variable cuantitativa (`altura_tot`), una cualitativa (`tipo_arbol`) y un código geográfico (`cod_ref`) para el análisis.
+2. Identificar y cuantificar los datos perdidos, las categorías inconsistentes y los registros duplicados, y aplicar el tratamiento correspondiente documentando cuántos registros se afectan.
+3. Calcular las medidas estadísticas descriptivas (media, mediana, moda, desviación estándar y cuartiles) de la altura total del arbolado y representar su distribución mediante histograma y diagrama de cajas y bigotes.
+4. Determinar la composición del arbolado por tipo de vegetación mediante tablas de frecuencia y gráficos de barras, y comparar la altura entre los tipos.
+5. Presentar el Top 10 de áreas geográficas con mayor número de individuos registrados.
+
+# Descripción del conjunto de datos
+
+## Carga de los datos
+
+El archivo no trae encabezados, está separado por tabulaciones y tiene codificación ISO-8859-1 (tildes y eñes). Los nombres de las 65 columnas se tomaron del diccionario de datos publicado en Microdatos y se asignan en el mismo orden del diccionario. Todas las columnas se leen inicialmente como texto para evitar errores de tipo y luego se convierten las numéricas.
+
+```{r}
+nombres <- c("codigo_Cen","codigo_arb","num_arb","cod_ref","nom_comun","nom_cient",
+ "sigla","fisiologia","tipo_arbol","id_clase","consecutiv","coord_x","coord_y",
+ "follaje","densidad","transparen","desc_est_f","estado_f","porcafec_f","causas_fol",
+ "formatronc","desc_est_t","estado_t","porcafec_t","danos","danos_t","metodo",
+ "diam_ecuat","pap","perim_basa","ang_inclin","diam_polar","altura_tot","altura_fus",
+ "ang_comple","angulo_1","angulo_2","angulo_3","sentidang1","sentidang2","sentidang3",
+ "dist_horiz","distbasefu","distbaspry","exp_raiz","desestrai","estado_rai","porcafecra",
+ "danos_raiz","descdanor","interf_red","interf_inf","interfrede","fecha_crea","usua_crea",
+ "fecha_mod","usua_mod","cod_geoasi","completo_r","observacio","nuevo","fechacaptu",
+ "otro_nom","idinterno","fase")
+
+length(nombres)  # debe dar 65, igual que el diccionario
+```
+
+```{r}
+# El archivo debe estar en la carpeta "Datos" del repositorio
+data <- read.delim("DATOS/ESTRUCTURA CENSO ARBOLADO FASE IV.txt",
+                   header = FALSE,
+                   sep = "\t",
+                   quote = "",
+                   comment.char = "",
+                   fileEncoding = "ISO-8859-1",
+                   colClasses = "character",
+                   na.strings = c("", "NA"),
+                   col.names = nombres)
+```
+
+## Descripción general
+
+- **Nombre:** Censo del Arbolado Urbano Bogotá D.C. - CAU 2005 - 2007, Fases I - IV (septiembre 2005 - septiembre 2007).
+- **Entidad:** Dirección de Regulación, Planeación, Estandarización y Normalización Estadística (DIRPEN) - DANE.
+- **Fuente:** Plataforma Microdatos del DANE, código `DANE-DIRPEN-CAU-2005-2007`: <https://microdatos.dane.gov.co/index.php/catalog/32>
+- **Archivo utilizado:** `ESTRUCTURA CENSO ARBOLADO FASE IV`.
+- **Cobertura:** Bogotá D.C., Colombia (categoría *Ambientales*).
+- **Unidad de observación:** un individuo vegetal (árbol, arbusto o palma) censado.
+- **Tamaño:** `r fmt(nrow(data))` registros y `r ncol(data)` variables.
+
+Según el diccionario, las variables se agrupan en: identificación, entorno del árbol, dasometría, follaje, tronco y raíces, además de observaciones de cierre del formulario digital.
+
+**Justificación de la elección.** Se eligió este conjunto de datos porque pertenece al sector *Ambientales* de Microdatos, tiene un número de registros suficientemente grande para un análisis exploratorio (decenas de miles de observaciones), incluye variables cuantitativas y cualitativas bien definidas y cuenta con un código del área geográfica que permite construir rankings territoriales.
+
+## Exploración inicial
+
+```{r}
+dim(data)
+```
+
+```{r}
+head(data[, c("codigo_arb", "num_arb", "cod_ref", "nom_comun", "tipo_arbol", "altura_tot")])
+```
+
+```{r}
+tail(data[, c("codigo_arb", "num_arb", "cod_ref", "nom_comun", "tipo_arbol", "altura_tot")])
+```
+
+```{r}
+colnames(data)
+```
+
+# Selección de variables
+
+Para el análisis se seleccionaron las siguientes variables (más el identificador interno `idinterno`, que permite rastrear cada registro):
+
+| Tipo | Variable | Descripción según el diccionario |
+|---|---|---|
+| Cuantitativa | `altura_tot` | Altura total del árbol (se asume que está en metros, pues los valores van de 0,7 a 46,5) |
+| Cualitativa | `tipo_arbol` | Tipo de árbol (Árbol, Arbusto, Palma) |
+| Código geográfico | `cod_ref` | Código del área geográfica de referencia del censo |
+
+Cabe aclarar que el censo corresponde a una sola ciudad (Bogotá D.C.), por lo que no existen distintos departamentos o municipios. Por esa razón, el código geográfico utilizado es el del **área geográfica** (`cod_ref`), que cuenta con 264 valores distintos, y el ranking Top 10 se construye sobre estas áreas.
+
+<!-- GRUPO: confirmar en la "Documentación en PDF" de Microdatos qué unidad territorial representa cod_ref (por ejemplo sector o barrio) y escribirlo aquí. -->
+
+```{r}
+arbol <- data.frame(
+  idinterno  = data$idinterno,
+  cod_ref    = data$cod_ref,
+  tipo_arbol = data$tipo_arbol,
+  altura_tot = as.numeric(data$altura_tot),
+  stringsAsFactors = FALSE
+)
+
+str(arbol)
+```
+
+# Limpieza de datos
+
+## Valores faltantes
+
+Se revisa primero el conjunto de datos completo (65 variables) y luego las variables seleccionadas.
+
+```{r}
+# Número total de datos perdidos en el dataframe
+total_na <- sum(is.na(data))
+
+print(paste("Total de datos perdidos:", fmt(total_na)))
+```
+
+```{r}
+library(dplyr)
+
+# Número de datos perdidos por columna
+na_por_columna <- colSums(is.na(data))
+
+tabla_na <- data.frame(
+  Columna = names(na_por_columna),
+  Datos_Perdidos = na_por_columna,
+  Porcentaje = round(100 * na_por_columna / nrow(data), 1)
+)
+
+# Solo las columnas que tienen datos perdidos, ordenadas de mayor a menor
+tabla_na_ordenada <- tabla_na %>%
+  filter(Datos_Perdidos > 0) %>%
+  arrange(desc(Datos_Perdidos))
+
+rownames(tabla_na_ordenada) <- NULL
+tabla_na_ordenada
+```
+
+```{r}
+# Columnas completamente vacías
+cols_vacias <- names(which(colSums(is.na(data)) == nrow(data)))
+cols_vacias
+```
+
+**Se identifican `r length(cols_vacias)` columnas completamente vacías (100 % de datos perdidos), que no aportan información. Adicionalmente, las variables `pap` y `diam_ecuat` presentan un número alto de vacíos, pero no se utilizan en este análisis.** Como el conjunto tiene 65 variables y muchas con vacíos propios del formulario, aplicar `na.omit()` a todo el conjunto eliminaría la gran mayoría de los registros sin necesidad. Por eso la exclusión de datos perdidos se aplica **únicamente sobre las variables seleccionadas**, y las columnas vacías se descartan.
+
+```{r}
+# Se eliminan las columnas totalmente vacías
+data <- data[, !(names(data) %in% cols_vacias)]
+dim(data)
+```
+
+Datos perdidos en las variables seleccionadas:
+
+```{r}
+colSums(is.na(arbol))
+```
+
+Las variables `cod_ref` y `altura_tot` no tienen datos perdidos. En `tipo_arbol` no hay celdas vacías, pero existen categorías de "no informado", que se tratan en la sección de inconsistencias.
+
+## Datos duplicados
+
+```{r}
+# Filas completamente repetidas
+sum(duplicated(data))
+```
+
+```{r}
+# Identificador interno repetido
+sum(duplicated(data$idinterno))
+```
+
+```{r}
+# Mismo árbol (código de área + número de árbol) repetido
+sum(duplicated(data[, c("codigo_arb", "num_arb")]))
+```
+
+```{r}
+# Misma ubicación (coordenadas) repetida
+sum(duplicated(data[, c("coord_x", "coord_y")]))
+```
+
+**Se comprobó que no hay registros duplicados: ni filas completas repetidas, ni identificadores repetidos, ni el mismo árbol ni las mismas coordenadas registradas dos veces.** Aun así, se aplica el procedimiento de eliminación para dejar el flujo de limpieza completo y verificar que las dimensiones no cambian:
+
+```{r}
+filas_antes <- nrow(data)
+
+data_sin <- data[!duplicated(data), ]
+arbol <- arbol[!duplicated(arbol$idinterno), ]
+
+c(antes = filas_antes, despues = nrow(data_sin))
+```
+
+## Inconsistencias en las categorías
+
+Se revisan las categorías de la variable cualitativa `tipo_arbol`:
+
+```{r}
+table(arbol$tipo_arbol, useNA = "ifany")
+```
+
+Además de las categorías válidas (Arbol, Arbusto, Palma), aparecen **"NN"** (no identificado) y **"Ot"** (otro, sin descripción), que no corresponden a un tipo de vegetación informado. Se tratan como datos perdidos. Posteriormente se estandarizan los textos, dejando solo la primera letra en mayúscula, como en el resto del curso.
+
+```{r}
+# Texto limpio: sin espacios sobrantes
+arbol$tipo_arbol <- trimws(arbol$tipo_arbol)
+
+# "NN" y "Ot" se consideran datos no informados
+arbol$tipo_arbol[toupper(arbol$tipo_arbol) %in% c("NN", "OT")] <- NA
+
+# Solo la primera letra en mayúscula (se aplica únicamente a los datos informados)
+informado <- !is.na(arbol$tipo_arbol)
+arbol$tipo_arbol[informado] <- paste0(toupper(substr(arbol$tipo_arbol[informado], 1, 1)),
+                                      tolower(substr(arbol$tipo_arbol[informado], 2,
+                                                     nchar(arbol$tipo_arbol[informado]))))
+
+table(arbol$tipo_arbol, useNA = "ifany")
+```
+
+También se verifica que el código geográfico tenga el formato esperado de 8 caracteres:
+
+```{r}
+table(nchar(arbol$cod_ref))
+```
+
+## Exclusión de datos perdidos
+
+```{r}
+n_antes <- nrow(arbol)
+
+arbol_limpio <- na.omit(arbol)
+rownames(arbol_limpio) <- NULL
+
+n_despues <- nrow(arbol_limpio)
+
+c(antes = n_antes, despues = n_despues, eliminados = n_antes - n_despues)
+```
+
+Se excluyen `r fmt(n_antes - n_despues)` registros (`r fmt(100 * (n_antes - n_despues) / n_antes, 2)` % del total) por no tener el tipo de vegetación informado. Quedan `r fmt(n_despues)` registros para el análisis.
+
+## Revisión de valores imposibles en la altura
+
+```{r}
+summary(arbol_limpio$altura_tot)
+```
+
+```{r}
+# Alturas menores o iguales a cero (valores imposibles)
+arbol_limpio[arbol_limpio$altura_tot <= 0, ]
+```
+
+```{r}
+sum(arbol_limpio$altura_tot <= 0)
+```
+
+**No hay alturas negativas ni iguales a cero: el valor mínimo es `r fmt(min(arbol_limpio$altura_tot), 2)` y el máximo `r fmt(max(arbol_limpio$altura_tot), 2)`, valores posibles para el arbolado urbano.**
+
+# Análisis exploratorio de datos (EDA)
+
+## Variable cualitativa: tipo de vegetación
+
+```{r}
+tabla_tipo <- data.frame(sort(table(arbol_limpio$tipo_arbol), decreasing = TRUE))
+colnames(tabla_tipo) <- c("Tipo_Vegetacion", "Frecuencia")
+tabla_tipo$Porcentaje <- round(100 * tabla_tipo$Frecuencia / sum(tabla_tipo$Frecuencia), 1)
+
+tabla_tipo
+```
+
+```{r}
+barplot(
+  tabla_tipo$Frecuencia,
+  names.arg = tabla_tipo$Tipo_Vegetacion,
+  col = "skyblue",
+  border = "darkblue",
+  main = "Individuos censados por tipo de vegetación",
+  xlab = "Tipo de vegetación",
+  ylab = "Número de individuos")
+```
+
+```{r, include=FALSE}
+t1 <- tabla_tipo[1, ]
+t2 <- tabla_tipo[2, ]
+t3 <- tabla_tipo[3, ]
+```
+
+**De un total de `r fmt(sum(tabla_tipo$Frecuencia))` individuos analizados, el tipo de vegetación predominante es "`r t1$Tipo_Vegetacion`", con `r fmt(t1$Frecuencia)` registros, lo que representa el `r fmt(t1$Porcentaje, 1)` % del total. En segundo lugar se ubica "`r t2$Tipo_Vegetacion`", con `r fmt(t2$Frecuencia)` registros (`r fmt(t2$Porcentaje, 1)` %), y por último "`r t3$Tipo_Vegetacion`", con `r fmt(t3$Frecuencia)` registros (`r fmt(t3$Porcentaje, 1)` %). Esto indica que el arbolado de Bogotá está compuesto principalmente por árboles, seguidos de arbustos, mientras que las palmas tienen una presencia minoritaria.**
+
+## Variable cuantitativa: altura total
+
+### Medidas estadísticas descriptivas
+
+```{r}
+# La moda es el valor que más se repite
+moda <- function(x) {
+  t <- table(x)
+  as.numeric(names(t)[which.max(t)])
+}
+
+x <- arbol_limpio$altura_tot
+
+estadisticos <- data.frame(
+  Estadístico = c("Número de datos", "Media", "Mediana", "Moda", "Desviación Estándar",
+                  "Coeficiente de variación (%)", "Mínimo", "Máximo",
+                  "Q1 (25%)", "Q2 (50%)", "Q3 (75%)"),
+  Valor = c(
+    length(x),
+    mean(x),
+    median(x),
+    moda(x),
+    sd(x),
+    100 * sd(x) / mean(x),
+    min(x),
+    max(x),
+    quantile(x, probs = 0.25),
+    quantile(x, probs = 0.50),
+    quantile(x, probs = 0.75)
+  )
+)
+
+estadisticos$Valor <- round(estadisticos$Valor, 2)
+estadisticos
+```
+
+**La altura promedio del arbolado es de `r fmt(mean(x), 2)` y la mediana de `r fmt(median(x), 2)`; como la media es mayor que la mediana, la distribución es asimétrica hacia la derecha, es decir, hay pocos individuos muy altos que "jalan" el promedio hacia arriba. El valor más frecuente (moda) es `r fmt(moda(x), 2)`. La desviación estándar (`r fmt(sd(x), 2)`) y el coeficiente de variación (`r fmt(100 * sd(x) / mean(x), 1)` %) muestran una dispersión alta. El 50 % central de los individuos tiene alturas entre `r fmt(quantile(x, 0.25), 2)` (Q1) y `r fmt(quantile(x, 0.75), 2)` (Q3).**
+
+### Histograma y diagrama de cajas y bigotes
+
+```{r}
+hist(
+  arbol_limpio$altura_tot,
+  breaks = 40,
+  col = "skyblue",
+  border = "darkblue",
+  main = "Histograma de la altura total",
+  xlab = "Altura total",
+  ylab = "Frecuencia")
+```
+
+```{r}
+boxplot(
+  arbol_limpio$altura_tot,
+  horizontal = TRUE,
+  col = "skyblue",
+  border = "darkblue",
+  main = "Cajas y Bigotes de la altura total",
+  xlab = "Altura total")
+```
+
+El histograma confirma una distribución con la mayoría de los individuos en alturas bajas y una cola larga hacia alturas grandes. El diagrama de cajas muestra además numerosos puntos por encima del bigote superior.
+
+### Identificación de valores atípicos
+
+Se aplica el criterio del rango intercuartílico: es atípico todo valor por debajo de $Q_1 - 1.5 \times IQR$ o por encima de $Q_3 + 1.5 \times IQR$.
+
+```{r}
+Q1 <- quantile(arbol_limpio$altura_tot, 0.25)
+Q3 <- quantile(arbol_limpio$altura_tot, 0.75)
+IQR_valor <- IQR(arbol_limpio$altura_tot)
+
+limite_inferior <- Q1 - 1.5 * IQR_valor
+limite_superior <- Q3 + 1.5 * IQR_valor
+
+c(limite_inferior = unname(limite_inferior), limite_superior = unname(limite_superior))
+```
+
+```{r}
+valores_atipicos <- arbol_limpio[
+  arbol_limpio$altura_tot < limite_inferior |
+  arbol_limpio$altura_tot > limite_superior, ]
+
+nrow(valores_atipicos)
+summary(valores_atipicos$altura_tot)
+```
+
+**Se identifican `r fmt(nrow(valores_atipicos))` valores atípicos (`r fmt(100 * nrow(valores_atipicos) / nrow(arbol_limpio), 1)` % de los datos), todos por encima del límite superior de `r fmt(limite_superior, 2)`. A diferencia de un error de digitación, estos valores corresponden a árboles de gran porte (la altura máxima es `r fmt(max(arbol_limpio$altura_tot), 2)`) que son posibles en el arbolado de una ciudad, por lo que se decidió conservarlos en el análisis y no eliminarlos. Se deja constancia de que inflan la media respecto de la mediana.**
+
+## Altura según el tipo de vegetación
+
+```{r}
+res_tipo <- do.call(rbind, lapply(
+  split(arbol_limpio$altura_tot, arbol_limpio$tipo_arbol),
+  function(v) data.frame(
+    n = length(v),
+    Media = round(mean(v), 2),
+    Mediana = round(median(v), 2),
+    Desv_Est = round(sd(v), 2),
+    Maximo = round(max(v), 2)
+  )
+))
+
+res_tipo
+```
+
+```{r}
+boxplot(
+  altura_tot ~ tipo_arbol,
+  data = arbol_limpio,
+  col = "skyblue",
+  border = "darkblue",
+  main = "Altura total según el tipo de vegetación",
+  xlab = "Tipo de vegetación",
+  ylab = "Altura total")
+```
+
+```{r, include=FALSE}
+tipo_mas_alto <- rownames(res_tipo)[which.max(res_tipo$Mediana)]
+tipo_mas_bajo <- rownames(res_tipo)[which.min(res_tipo$Mediana)]
+```
+
+**Al comparar los tipos de vegetación, "`r tipo_mas_alto`" presenta la mayor altura mediana (`r fmt(max(res_tipo$Mediana), 2)`), mientras que "`r tipo_mas_bajo`" presenta la menor (`r fmt(min(res_tipo$Mediana), 2)`). Es decir, la altura depende claramente del tipo de vegetación, lo cual es coherente con la naturaleza de cada grupo.**
+
+## Top 10 de áreas geográficas
+
+Se cuenta el número de individuos registrados por cada área geográfica (`cod_ref`) y se presentan las 10 con mayor número.
+
+```{r}
+conteo_area <- sort(table(arbol_limpio$cod_ref), decreasing = TRUE)
+
+top10 <- data.frame(head(conteo_area, 10))
+colnames(top10) <- c("Codigo_Area", "Numero_Individuos")
+top10$Porcentaje_Total <- round(100 * top10$Numero_Individuos / nrow(arbol_limpio), 2)
+top10$Posicion <- 1:10
+
+top10 <- top10[, c("Posicion", "Codigo_Area", "Numero_Individuos", "Porcentaje_Total")]
+top10
+```
+
+```{r, fig.height=5}
+par(mar = c(5, 7, 4, 2))
+barplot(
+  rev(top10$Numero_Individuos),
+  names.arg = rev(top10$Codigo_Area),
+  horiz = TRUE,
+  las = 1,
+  col = "skyblue",
+  border = "darkblue",
+  main = "Top 10 de áreas geográficas con más individuos",
+  xlab = "Número de individuos")
+```
+
+```{r, include=FALSE}
+n_areas <- length(conteo_area)
+prop_top10 <- 100 * sum(top10$Numero_Individuos) / nrow(arbol_limpio)
+```
+
+**En total se registran individuos en `r n_areas` áreas geográficas. El área con mayor número de individuos es la `r top10$Codigo_Area[1]`, con `r fmt(top10$Numero_Individuos[1])` registros (`r fmt(top10$Porcentaje_Total[1], 2)` % del total), seguida de la `r top10$Codigo_Area[2]` con `r fmt(top10$Numero_Individuos[2])` y de la `r top10$Codigo_Area[3]` con `r fmt(top10$Numero_Individuos[3])`. Entre las 10 áreas del ranking suman `r fmt(sum(top10$Numero_Individuos))` individuos, es decir, el `r fmt(prop_top10, 1)` % del arbolado censado, lo que muestra que el arbolado está concentrado de manera desigual en el territorio.**
+
+### Altura media en las áreas con más individuos
+
+Como complemento, se calcula la altura promedio dentro de cada una de esas 10 áreas:
+
+```{r}
+altura_top10 <- sapply(top10$Codigo_Area, function(a) {
+  mean(arbol_limpio$altura_tot[arbol_limpio$cod_ref == a])
+})
+
+top10_altura <- data.frame(
+  Codigo_Area = top10$Codigo_Area,
+  Numero_Individuos = top10$Numero_Individuos,
+  Altura_Media = round(altura_top10, 2)
+)
+rownames(top10_altura) <- NULL
+top10_altura
+```
+
+# Conclusiones
+
+1. **Calidad de los datos.** El archivo original tiene `r fmt(nrow(data))` registros y 65 variables; `r length(cols_vacias)` de ellas están completamente vacías. No se encontraron registros duplicados. En la variable `tipo_arbol` se detectaron categorías "no informadas" (NN y Ot) que se trataron como datos perdidos, por lo que se excluyeron `r fmt(n_antes - n_despues)` registros (`r fmt(100 * (n_antes - n_despues) / n_antes, 2)` %). No se hallaron alturas imposibles.
+2. **Tipo de vegetación.** El arbolado está dominado por "`r t1$Tipo_Vegetacion`" (`r fmt(t1$Porcentaje, 1)` %), seguido de "`r t2$Tipo_Vegetacion`" (`r fmt(t2$Porcentaje, 1)` %) y "`r t3$Tipo_Vegetacion`" (`r fmt(t3$Porcentaje, 1)` %).
+3. **Altura.** La altura promedio es `r fmt(mean(x), 2)` y la mediana `r fmt(median(x), 2)`. La distribución es asimétrica hacia la derecha: la mayoría de los individuos son de porte bajo o medio, y existen `r fmt(nrow(valores_atipicos))` individuos de gran altura considerados atípicos, que se conservaron por ser valores reales. La altura varía según el tipo de vegetación.
+4. **Distribución territorial.** Los individuos se reparten en `r n_areas` áreas geográficas, y las 10 áreas con mayor número concentran el `r fmt(prop_top10, 1)` % del arbolado, encabezadas por las áreas `r top10$Codigo_Area[1]`, `r top10$Codigo_Area[2]` y `r top10$Codigo_Area[3]`.
+5. **Limitaciones.** El censo corresponde a los años 2005 - 2007, por lo que sus resultados describen el arbolado de ese periodo y no necesariamente el actual. Además, el diccionario no especifica la unidad de medida de la altura (se asumió metros) y el análisis territorial se hizo por área geográfica, ya que todos los datos pertenecen a un único municipio.
+
+6. **limitaciones de formato**Una limitante del trabajo fue que los microdatos del DANE se entregan en un archivo de texto plano (.txt), sin encabezados, separado por tabulaciones y con codificación ISO-8859-1, lo que impedía leerlo directamente en R (las 65 columnas no tenían nombre y las tildes se mostraban mal). Se resolvió con read.delim(), indicando el separador, la codificación y la ausencia de encabezados, asignando los nombres de las columnas desde el diccionario de datos del DANE y cargando todo como texto para convertir después a número solo las variables necesarias, verificando que el resultado tuviera las 65 columnas del diccionario.
+
+# Referencias
+
+- Departamento Administrativo Nacional de Estadística (DANE). *Censo del Arbolado Urbano Bogotá D.C. - CAU 2005 - 2007, Fases I - IV*. Archivo Nacional de Datos (ANDA), Microdatos. <https://microdatos.dane.gov.co/index.php/catalog/32>
