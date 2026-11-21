@@ -2,6 +2,11 @@
 
 Repositorio con los talleres, proyectos y actividades prácticas desarrollados en la formación de Ciencia de Datos e Inteligencia Artificial en la Universidad Pedagógica y Tecnológica de Colombia (UPTC).
 
+## 🚀 Portal Principal de Consulta
+
+El repositorio cuenta con un **portal web interactivo** en la raíz:
+- **[`index.html`](index.html)**: Dashboard central para consultar y visualizar directamente ambos proyectos, sus reportes HTML interactivos en vivo, descargar cuadernos (Jupyter/Rmd) y explorar los datasets.
+
 ## Estructura del Repositorio
 
 - **`Tarea I Análisis Exploratorio de Datos/`**:
