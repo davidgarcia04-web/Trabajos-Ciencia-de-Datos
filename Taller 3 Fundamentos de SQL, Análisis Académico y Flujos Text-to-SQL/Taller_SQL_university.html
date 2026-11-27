@@ -1,0 +1,6266 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Taller SQL: Analítica Académica sobre university.db</title>
+<style>
+:root{--fg:#333;--muted:#6b7280;--bg:#fff;--line:#e5e7eb;--accent:#2c7be5;--code-bg:#f6f8fa;
+--interp-bg:#f0f7ff;--interp-bd:#2c7be5;--note-bg:#fff8e6;--note-bd:#e0a800;--head:#1f2937}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:20px}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 "Helvetica Neue",Helvetica,Arial,"Segoe UI",sans-serif}
+code,pre{font-family:SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace}
+.layout{display:grid;grid-template-columns:290px minmax(0,1fr);min-height:100vh}
+nav.side{position:sticky;top:0;align-self:start;height:100vh;overflow-y:auto;padding:28px 18px 40px 24px;border-right:1px solid var(--line);font-size:13.5px}
+nav.side .brand{font-weight:700;color:var(--head);font-size:14px;margin-bottom:12px;line-height:1.3}
+ul.toc,ul.toc ul{list-style:none;margin:0;padding:0}
+ul.toc a{display:block;color:#4b5563;text-decoration:none;padding:3px 8px;border-left:3px solid transparent;border-radius:0 4px 4px 0}
+ul.toc a:hover{background:#f3f4f6;color:var(--head)}
+li.h2>a{font-weight:600;margin-top:6px;color:var(--head)}
+li.h2>ul{display:none;margin:2px 0 6px 10px}
+li.h2.open>ul{display:block}
+li.h3 a{font-size:12.5px;padding:2px 8px}
+ul.toc a.active{border-left-color:var(--accent);background:#eef5ff;color:var(--accent)}
+main{padding:0 32px 80px;max-width:1000px;width:100%;margin:0 auto}
+header.title{text-align:center;padding:56px 0 28px;border-bottom:1px solid var(--line);margin-bottom:28px}
+header.title h1{font-size:2.05rem;line-height:1.2;margin:0 0 8px;color:var(--head)}
+header.title h1 code{background:#f1f3f5;padding:0 .3em;border-radius:6px;font-size:.88em;color:#c7254e}
+header.title .sub strong{font-weight:600;color:#4b5563}
+nav.side .brand code{font-size:.9em}
+header.title .sub{color:var(--muted);font-size:1.05rem;margin-bottom:10px}
+header.title .author{font-weight:600}
+header.title .date{color:var(--muted);font-size:.92rem}
+.tools{display:flex;gap:8px;justify-content:center;margin-top:18px;flex-wrap:wrap}
+.tools button{font:inherit;font-size:13px;padding:5px 12px;border:1px solid #cbd5e1;background:#fff;border-radius:6px;cursor:pointer;color:#374151}
+.tools button:hover{background:#f3f4f6}
+h2{font-size:1.55rem;margin:2.6rem 0 .8rem;padding-bottom:.3rem;border-bottom:2px solid var(--line);color:var(--head)}
+h3{font-size:1.2rem;margin:2rem 0 .6rem;color:var(--head)}
+h4{font-size:1.02rem;margin:1.4rem 0 .4rem;color:var(--head)}
+p{margin:.6rem 0}
+.cell.md :not(pre)>code{background:#f1f3f5;padding:1px 5px;border-radius:4px;font-size:.88em;color:#c7254e}
+.cell.intro{background:#f8fafc;border:1px solid var(--line);border-radius:8px;padding:6px 20px;margin-bottom:10px}
+.cell.interp,.cell.note{border-left:4px solid var(--interp-bd);background:var(--interp-bg);padding:8px 16px;border-radius:0 6px 6px 0;margin:.9rem 0 1.4rem}
+.cell.note{border-left-color:var(--note-bd);background:var(--note-bg)}
+.cell.interp p,.cell.note p{margin:.25rem 0}
+.cell.note blockquote{margin:0;padding:0;border:0}
+.cell.md table{border-collapse:collapse;margin:1rem 0;font-size:.93rem;display:block;overflow-x:auto}
+.cell.md th,.cell.md td{border:1px solid var(--line);padding:6px 10px;text-align:left;vertical-align:top}
+.cell.md th{background:#f3f4f6}
+.chunk{margin:.8rem 0 .4rem}
+details.code>summary{cursor:pointer;font-size:12px;color:var(--muted);user-select:none;padding:2px 0;list-style:none}
+details.code>summary::before{content:"▸ ";}
+details.code[open]>summary::before{content:"▾ ";}
+details.code>summary:hover{color:var(--accent)}
+pre.src{margin:2px 0 0;background:var(--code-bg);border:1px solid #d9dee4;border-radius:6px;padding:12px 14px;overflow-x:auto;font-size:13.5px;line-height:1.5}
+pre.src code{background:none;color:inherit;padding:0}
+.outputs{margin-top:8px}
+pre.out{margin:6px 0;background:#fff;border:1px solid var(--line);border-left:3px solid #94a3b8;border-radius:4px;padding:8px 12px;font-size:13px;overflow-x:auto;color:#374151}
+pre.out.err{border-left-color:#dc2626;color:#b91c1c}
+.table-wrap{max-height:460px;overflow:auto;border:1px solid var(--line);border-radius:6px;margin:6px 0 0}
+table.df{border-collapse:collapse;width:100%;font-size:13.5px;font-variant-numeric:tabular-nums}
+table.df th,table.df td{padding:5px 12px;border-bottom:1px solid #eef0f3;white-space:nowrap;text-align:left}
+table.df thead th{position:sticky;top:0;background:#f3f4f6;border-bottom:2px solid #d1d5db;z-index:1;font-weight:600}
+table.df tbody th{color:var(--muted);font-weight:400;background:#fafafa;text-align:right;width:1%}
+table.df tbody tr:nth-child(even) td{background:#fafbfc}
+table.df tbody tr:hover td{background:#eef5ff}
+table.df td.num,table.df thead th.num{text-align:right}
+table.df td.na{color:#9ca3af;font-style:italic}
+.cap{font-size:12px;color:var(--muted);margin:3px 2px 0;text-align:right}
+.empty{border:1px dashed #cbd5e1;border-radius:6px;padding:10px 14px;color:var(--muted);font-size:13.5px;background:#fafafa;margin-top:6px}
+footer{margin-top:60px;padding-top:16px;border-top:1px solid var(--line);color:var(--muted);font-size:13px;text-align:center}
+nav.mobile{display:none}
+@media (max-width:1000px){
+ .layout{display:block}
+ nav.side{display:none}
+ nav.mobile{display:block;margin:12px 16px 0;border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:14px}
+ nav.mobile summary{cursor:pointer;font-weight:600}
+ nav.mobile ul.toc{max-height:50vh;overflow:auto;margin-top:8px}
+ main{padding:0 16px 60px}
+ header.title{padding-top:28px}
+ header.title h1{font-size:1.6rem}
+}
+@media print{
+ nav.side,nav.mobile,.tools{display:none}
+ .layout{display:block}
+ .table-wrap{max-height:none;overflow:visible}
+ details.code>summary{display:none}
+ h2,h3{break-after:avoid} .chunk{break-inside:avoid}
+}
+pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.hl .hll { background-color: #ffffcc }
+.hl { background: #f8f8f8; }
+.hl .c { color: #3D7B7B; font-style: italic } /* Comment */
+.hl .err { border: 1px solid #F00 } /* Error */
+.hl .k { color: #008000; font-weight: bold } /* Keyword */
+.hl .o { color: #666 } /* Operator */
+.hl .ch { color: #3D7B7B; font-style: italic } /* Comment.Hashbang */
+.hl .cm { color: #3D7B7B; font-style: italic } /* Comment.Multiline */
+.hl .cp { color: #9C6500 } /* Comment.Preproc */
+.hl .cpf { color: #3D7B7B; font-style: italic } /* Comment.PreprocFile */
+.hl .c1 { color: #3D7B7B; font-style: italic } /* Comment.Single */
+.hl .cs { color: #3D7B7B; font-style: italic } /* Comment.Special */
+.hl .gd { color: #A00000 } /* Generic.Deleted */
+.hl .ge { font-style: italic } /* Generic.Emph */
+.hl .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.hl .gr { color: #E40000 } /* Generic.Error */
+.hl .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.hl .gi { color: #008400 } /* Generic.Inserted */
+.hl .go { color: #717171 } /* Generic.Output */
+.hl .gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+.hl .gs { font-weight: bold } /* Generic.Strong */
+.hl .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.hl .gt { color: #04D } /* Generic.Traceback */
+.hl .kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+.hl .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+.hl .kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+.hl .kp { color: #008000 } /* Keyword.Pseudo */
+.hl .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+.hl .kt { color: #B00040 } /* Keyword.Type */
+.hl .m { color: #666 } /* Literal.Number */
+.hl .s { color: #BA2121 } /* Literal.String */
+.hl .na { color: #687822 } /* Name.Attribute */
+.hl .nb { color: #008000 } /* Name.Builtin */
+.hl .nc { color: #00F; font-weight: bold } /* Name.Class */
+.hl .no { color: #800 } /* Name.Constant */
+.hl .nd { color: #A2F } /* Name.Decorator */
+.hl .ni { color: #717171; font-weight: bold } /* Name.Entity */
+.hl .ne { color: #CB3F38; font-weight: bold } /* Name.Exception */
+.hl .nf { color: #00F } /* Name.Function */
+.hl .nl { color: #767600 } /* Name.Label */
+.hl .nn { color: #00F; font-weight: bold } /* Name.Namespace */
+.hl .nt { color: #008000; font-weight: bold } /* Name.Tag */
+.hl .nv { color: #19177C } /* Name.Variable */
+.hl .ow { color: #A2F; font-weight: bold } /* Operator.Word */
+.hl .w { color: #BBB } /* Text.Whitespace */
+.hl .mb { color: #666 } /* Literal.Number.Bin */
+.hl .mf { color: #666 } /* Literal.Number.Float */
+.hl .mh { color: #666 } /* Literal.Number.Hex */
+.hl .mi { color: #666 } /* Literal.Number.Integer */
+.hl .mo { color: #666 } /* Literal.Number.Oct */
+.hl .sa { color: #BA2121 } /* Literal.String.Affix */
+.hl .sb { color: #BA2121 } /* Literal.String.Backtick */
+.hl .sc { color: #BA2121 } /* Literal.String.Char */
+.hl .dl { color: #BA2121 } /* Literal.String.Delimiter */
+.hl .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+.hl .s2 { color: #BA2121 } /* Literal.String.Double */
+.hl .se { color: #AA5D1F; font-weight: bold } /* Literal.String.Escape */
+.hl .sh { color: #BA2121 } /* Literal.String.Heredoc */
+.hl .si { color: #A45A77; font-weight: bold } /* Literal.String.Interpol */
+.hl .sx { color: #008000 } /* Literal.String.Other */
+.hl .sr { color: #A45A77 } /* Literal.String.Regex */
+.hl .s1 { color: #BA2121 } /* Literal.String.Single */
+.hl .ss { color: #19177C } /* Literal.String.Symbol */
+.hl .bp { color: #008000 } /* Name.Builtin.Pseudo */
+.hl .fm { color: #00F } /* Name.Function.Magic */
+.hl .vc { color: #19177C } /* Name.Variable.Class */
+.hl .vg { color: #19177C } /* Name.Variable.Global */
+.hl .vi { color: #19177C } /* Name.Variable.Instance */
+.hl .vm { color: #19177C } /* Name.Variable.Magic */
+.hl .il { color: #666 } /* Literal.Number.Integer.Long */</style>
+</head>
+<body>
+<nav class="mobile"><details><summary>Contenido</summary><ul class="toc"><li class="h2"><a href="#0-configuracion">0. Configuración</a><ul></ul></li><li class="h2"><a href="#bloque-a-exploracion-ordenamiento-y-filtros">Bloque A: Exploración, ordenamiento y filtros</a><ul><li class="h3"><a href="#a1-todos-los-registros-de-usuarios">A1. Todos los registros de USUARIOS</a></li><li class="h3"><a href="#a2-nombre-y-apellido-de-los-usuarios">A2. NOMBRE y APELLIDO de los usuarios</a></li><li class="h3"><a href="#a3-carreras-en-orden-alfabetico-ascendente">A3. Carreras en orden alfabético ascendente</a></li><li class="h3"><a href="#a4-cursos-en-orden-alfabetico-descendente">A4. Cursos en orden alfabético descendente</a></li><li class="h3"><a href="#a5-estudiantes-en-semestre-2">A5. Estudiantes en semestre 2</a></li><li class="h3"><a href="#a6-usuarios-con-apellido-gomez">A6. Usuarios con apellido &#x27;Gomez&#x27;</a></li><li class="h3"><a href="#a7-estudiantes-en-semestre-1-o-2">A7. Estudiantes en semestre 1 o 2</a></li><li class="h3"><a href="#a8-asignaturas-de-ingenieria-y-ciencias-relacionadas-con-int">A8. Asignaturas de Ingeniería y Ciencias relacionadas con inteligencia/datos</a></li></ul></li><li class="h2"><a href="#bloque-b-manipulacion-de-datos-dml">Bloque B: Manipulación de datos (DML)</a><ul><li class="h3"><a href="#b1-insertar-una-nueva-facultad">B1. Insertar una nueva facultad</a></li><li class="h3"><a href="#b2-eliminar-la-facultad-recien-insertada">B2. Eliminar la facultad recién insertada</a></li><li class="h3"><a href="#b3-verificar-que-la-facultad-fue-eliminada">B3. Verificar que la facultad fue eliminada</a></li><li class="h3"><a href="#b4-insertar-un-nuevo-estudiante-id-rol-1">B4. Insertar un nuevo estudiante (ID_ROL = 1)</a></li><li class="h3"><a href="#b5-verificar-el-nuevo-registro">B5. Verificar el nuevo registro</a></li><li class="h3"><a href="#b6-actualizar-el-semestre-del-estudiante-a-4">B6. Actualizar el semestre del estudiante a 4</a></li><li class="h3"><a href="#b7-eliminar-el-estudiante-ingresado">B7. Eliminar el estudiante ingresado</a></li><li class="h3"><a href="#b8-verificar-la-eliminacion-del-estudiante">B8. Verificar la eliminación del estudiante</a></li></ul></li><li class="h2"><a href="#bloque-c-cruces-relacionales-inner-join">Bloque C: Cruces relacionales (INNER JOIN)</a><ul><li class="h3"><a href="#c1-cada-carrera-con-su-facultad">C1. Cada carrera con su facultad</a></li><li class="h3"><a href="#c2-usuarios-con-rol-de-estudiante">C2. Usuarios con rol de estudiante</a></li><li class="h3"><a href="#c3-usuarios-con-rol-de-profesor">C3. Usuarios con rol de profesor</a></li><li class="h3"><a href="#c4-cursos-matriculados-por-cada-estudiante">C4. Cursos matriculados por cada estudiante</a></li><li class="h3"><a href="#c5-cursos-programados-con-salon-y-edificio">C5. Cursos programados con salón y edificio</a></li><li class="h3"><a href="#c6-cartelera-del-dia-martes">C6. Cartelera del día Martes</a></li><li class="h3"><a href="#c7-horario-completo-del-estudiante-id-17-franziska-doppler">C7. Horario completo del estudiante ID 17 (Franziska Doppler)</a></li><li class="h3"><a href="#c8-profesores-y-cantidad-de-secciones-ofertadas-incluye-los-">C8. Profesores y cantidad de secciones ofertadas (incluye los que no dictan nada)</a></li><li class="h3"><a href="#c9-profesores-con-los-cursos-ofertados-que-orientan">C9. Profesores con los cursos ofertados que orientan</a></li></ul></li><li class="h2"><a href="#bloque-d-auditoria-de-registros-huerfanos">Bloque D: Auditoría de registros huérfanos</a><ul><li class="h3"><a href="#d1-estudiantes-sin-ninguna-matricula">D1. Estudiantes sin ninguna matrícula</a></li><li class="h3"><a href="#d2-cursos-del-catalogo-sin-horario-programado">D2. Cursos del catálogo sin horario programado</a></li><li class="h3"><a href="#d3-cursos-del-catalogo-sin-ningun-estudiante-matriculado">D3. Cursos del catálogo sin ningún estudiante matriculado</a></li><li class="h3"><a href="#d4-cursos-ofertados-en-calendario-sin-estudiantes-matriculad">D4. Cursos ofertados (en calendario) sin estudiantes matriculados</a></li></ul></li><li class="h2"><a href="#bloque-e-agregaciones-estadisticas-y-cupos">Bloque E: Agregaciones, estadísticas y cupos</a><ul><li class="h3"><a href="#e1-total-de-estudiantes">E1. Total de estudiantes</a></li><li class="h3"><a href="#e2-total-de-profesores-y-de-estudiantes-en-una-consulta">E2. Total de profesores y de estudiantes en una consulta</a></li><li class="h3"><a href="#e3-promedio-de-semestre-de-los-estudiantes">E3. Promedio de semestre de los estudiantes</a></li><li class="h3"><a href="#e4-estudiante-s-en-el-semestre-mas-alto">E4. Estudiante(s) en el semestre más alto</a></li><li class="h3"><a href="#e5-cursos-ofertados-por-facultad">E5. Cursos ofertados por facultad</a></li><li class="h3"><a href="#e6-facultades-con-mas-de-3-carreras">E6. Facultades con más de 3 carreras</a></li><li class="h3"><a href="#e6b-verificacion-carreras-por-facultad-sin-el-filtro-having">E6b. (Verificación) Carreras por facultad sin el filtro HAVING</a></li><li class="h3"><a href="#e7-estudiantes-matriculados-por-carrera">E7. Estudiantes matriculados por carrera</a></li><li class="h3"><a href="#e8-carrera-con-mas-estudiantes">E8. Carrera con más estudiantes</a></li><li class="h3"><a href="#e9-edificio-con-mas-salones">E9. Edificio con más salones</a></li><li class="h3"><a href="#e10-cursos-ofertados-secciones-por-docente-de-mayor-a-menor">E10. Cursos ofertados (secciones) por docente, de mayor a menor</a></li><li class="h3"><a href="#e11-numero-de-matriculas-por-estudiante">E11. Número de matrículas por estudiante</a></li><li class="h3"><a href="#e12-estudiantes-matriculados-en-menos-de-10-cursos">E12. Estudiantes matriculados en menos de 10 cursos</a></li><li class="h3"><a href="#e13-curso-con-mas-matriculas-vs-curso-con-mas-estudiantes-un">E13. Curso con más matrículas vs. curso con más estudiantes únicos</a></li><li class="h3"><a href="#e14-demanda-y-cupos-secciones-con-5-o-mas-inscritos">E14. Demanda y cupos: secciones con 5 o más inscritos</a></li></ul></li><li class="h2"><a href="#parte-ii-retos-integradores">Parte II: Retos integradores</a><ul><li class="h3"><a href="#r1-reto-1-carga-academica-por-carrera">R1. Reto 1: carga académica por carrera</a></li><li class="h3"><a href="#r1b-demostracion-mismo-reto-con-join-doble-sin-distinct-cont">R1b. (Demostración) Mismo reto con JOIN doble sin DISTINCT: conteos inflados</a></li><li class="h3"><a href="#reto-2-auditoria-text-to-sql-cruces-de-horario">Reto 2: Auditoría Text-to-SQL (cruces de horario)</a></li></ul></li><li class="h2"><a href="#resumen-ejecutivo">Resumen ejecutivo</a><ul></ul></li></ul></details></nav>
+<div class="layout">
+<nav class="side"><div class="brand">Taller SQL: Analítica Académica sobre <code>university.db</code></div><ul class="toc"><li class="h2"><a href="#0-configuracion">0. Configuración</a><ul></ul></li><li class="h2"><a href="#bloque-a-exploracion-ordenamiento-y-filtros">Bloque A: Exploración, ordenamiento y filtros</a><ul><li class="h3"><a href="#a1-todos-los-registros-de-usuarios">A1. Todos los registros de USUARIOS</a></li><li class="h3"><a href="#a2-nombre-y-apellido-de-los-usuarios">A2. NOMBRE y APELLIDO de los usuarios</a></li><li class="h3"><a href="#a3-carreras-en-orden-alfabetico-ascendente">A3. Carreras en orden alfabético ascendente</a></li><li class="h3"><a href="#a4-cursos-en-orden-alfabetico-descendente">A4. Cursos en orden alfabético descendente</a></li><li class="h3"><a href="#a5-estudiantes-en-semestre-2">A5. Estudiantes en semestre 2</a></li><li class="h3"><a href="#a6-usuarios-con-apellido-gomez">A6. Usuarios con apellido &#x27;Gomez&#x27;</a></li><li class="h3"><a href="#a7-estudiantes-en-semestre-1-o-2">A7. Estudiantes en semestre 1 o 2</a></li><li class="h3"><a href="#a8-asignaturas-de-ingenieria-y-ciencias-relacionadas-con-int">A8. Asignaturas de Ingeniería y Ciencias relacionadas con inteligencia/datos</a></li></ul></li><li class="h2"><a href="#bloque-b-manipulacion-de-datos-dml">Bloque B: Manipulación de datos (DML)</a><ul><li class="h3"><a href="#b1-insertar-una-nueva-facultad">B1. Insertar una nueva facultad</a></li><li class="h3"><a href="#b2-eliminar-la-facultad-recien-insertada">B2. Eliminar la facultad recién insertada</a></li><li class="h3"><a href="#b3-verificar-que-la-facultad-fue-eliminada">B3. Verificar que la facultad fue eliminada</a></li><li class="h3"><a href="#b4-insertar-un-nuevo-estudiante-id-rol-1">B4. Insertar un nuevo estudiante (ID_ROL = 1)</a></li><li class="h3"><a href="#b5-verificar-el-nuevo-registro">B5. Verificar el nuevo registro</a></li><li class="h3"><a href="#b6-actualizar-el-semestre-del-estudiante-a-4">B6. Actualizar el semestre del estudiante a 4</a></li><li class="h3"><a href="#b7-eliminar-el-estudiante-ingresado">B7. Eliminar el estudiante ingresado</a></li><li class="h3"><a href="#b8-verificar-la-eliminacion-del-estudiante">B8. Verificar la eliminación del estudiante</a></li></ul></li><li class="h2"><a href="#bloque-c-cruces-relacionales-inner-join">Bloque C: Cruces relacionales (INNER JOIN)</a><ul><li class="h3"><a href="#c1-cada-carrera-con-su-facultad">C1. Cada carrera con su facultad</a></li><li class="h3"><a href="#c2-usuarios-con-rol-de-estudiante">C2. Usuarios con rol de estudiante</a></li><li class="h3"><a href="#c3-usuarios-con-rol-de-profesor">C3. Usuarios con rol de profesor</a></li><li class="h3"><a href="#c4-cursos-matriculados-por-cada-estudiante">C4. Cursos matriculados por cada estudiante</a></li><li class="h3"><a href="#c5-cursos-programados-con-salon-y-edificio">C5. Cursos programados con salón y edificio</a></li><li class="h3"><a href="#c6-cartelera-del-dia-martes">C6. Cartelera del día Martes</a></li><li class="h3"><a href="#c7-horario-completo-del-estudiante-id-17-franziska-doppler">C7. Horario completo del estudiante ID 17 (Franziska Doppler)</a></li><li class="h3"><a href="#c8-profesores-y-cantidad-de-secciones-ofertadas-incluye-los-">C8. Profesores y cantidad de secciones ofertadas (incluye los que no dictan nada)</a></li><li class="h3"><a href="#c9-profesores-con-los-cursos-ofertados-que-orientan">C9. Profesores con los cursos ofertados que orientan</a></li></ul></li><li class="h2"><a href="#bloque-d-auditoria-de-registros-huerfanos">Bloque D: Auditoría de registros huérfanos</a><ul><li class="h3"><a href="#d1-estudiantes-sin-ninguna-matricula">D1. Estudiantes sin ninguna matrícula</a></li><li class="h3"><a href="#d2-cursos-del-catalogo-sin-horario-programado">D2. Cursos del catálogo sin horario programado</a></li><li class="h3"><a href="#d3-cursos-del-catalogo-sin-ningun-estudiante-matriculado">D3. Cursos del catálogo sin ningún estudiante matriculado</a></li><li class="h3"><a href="#d4-cursos-ofertados-en-calendario-sin-estudiantes-matriculad">D4. Cursos ofertados (en calendario) sin estudiantes matriculados</a></li></ul></li><li class="h2"><a href="#bloque-e-agregaciones-estadisticas-y-cupos">Bloque E: Agregaciones, estadísticas y cupos</a><ul><li class="h3"><a href="#e1-total-de-estudiantes">E1. Total de estudiantes</a></li><li class="h3"><a href="#e2-total-de-profesores-y-de-estudiantes-en-una-consulta">E2. Total de profesores y de estudiantes en una consulta</a></li><li class="h3"><a href="#e3-promedio-de-semestre-de-los-estudiantes">E3. Promedio de semestre de los estudiantes</a></li><li class="h3"><a href="#e4-estudiante-s-en-el-semestre-mas-alto">E4. Estudiante(s) en el semestre más alto</a></li><li class="h3"><a href="#e5-cursos-ofertados-por-facultad">E5. Cursos ofertados por facultad</a></li><li class="h3"><a href="#e6-facultades-con-mas-de-3-carreras">E6. Facultades con más de 3 carreras</a></li><li class="h3"><a href="#e6b-verificacion-carreras-por-facultad-sin-el-filtro-having">E6b. (Verificación) Carreras por facultad sin el filtro HAVING</a></li><li class="h3"><a href="#e7-estudiantes-matriculados-por-carrera">E7. Estudiantes matriculados por carrera</a></li><li class="h3"><a href="#e8-carrera-con-mas-estudiantes">E8. Carrera con más estudiantes</a></li><li class="h3"><a href="#e9-edificio-con-mas-salones">E9. Edificio con más salones</a></li><li class="h3"><a href="#e10-cursos-ofertados-secciones-por-docente-de-mayor-a-menor">E10. Cursos ofertados (secciones) por docente, de mayor a menor</a></li><li class="h3"><a href="#e11-numero-de-matriculas-por-estudiante">E11. Número de matrículas por estudiante</a></li><li class="h3"><a href="#e12-estudiantes-matriculados-en-menos-de-10-cursos">E12. Estudiantes matriculados en menos de 10 cursos</a></li><li class="h3"><a href="#e13-curso-con-mas-matriculas-vs-curso-con-mas-estudiantes-un">E13. Curso con más matrículas vs. curso con más estudiantes únicos</a></li><li class="h3"><a href="#e14-demanda-y-cupos-secciones-con-5-o-mas-inscritos">E14. Demanda y cupos: secciones con 5 o más inscritos</a></li></ul></li><li class="h2"><a href="#parte-ii-retos-integradores">Parte II: Retos integradores</a><ul><li class="h3"><a href="#r1-reto-1-carga-academica-por-carrera">R1. Reto 1: carga académica por carrera</a></li><li class="h3"><a href="#r1b-demostracion-mismo-reto-con-join-doble-sin-distinct-cont">R1b. (Demostración) Mismo reto con JOIN doble sin DISTINCT: conteos inflados</a></li><li class="h3"><a href="#reto-2-auditoria-text-to-sql-cruces-de-horario">Reto 2: Auditoría Text-to-SQL (cruces de horario)</a></li></ul></li><li class="h2"><a href="#resumen-ejecutivo">Resumen ejecutivo</a><ul></ul></li></ul></nav>
+<main>
+<header class="title">
+<h1>Taller SQL: Analítica Académica sobre <code>university.db</code></h1>
+<div class="sub"><strong>Especialización en Inteligencia Artificial</strong> · SQLite + Pandas</div>
+<div class="date">27 de noviembre de 2026</div>
+<div class="tools"><button id="show-code" type="button">Mostrar todo el código</button><button id="hide-code" type="button">Ocultar todo el código</button></div>
+</header>
+<section class="cell md intro"><p>Cada punto tiene: <strong>código SQL</strong>, <strong>evidencia de ejecución</strong> (tabla de resultados) e <strong>interpretación analítica</strong>.</p>
+<p><strong>Notas técnicas</strong></p>
+<ol>
+<li><code>HORA_INICIO</code> y <code>HORA_FIN</code> son texto (<code>'08:00 AM'</code>); para detectar solapamientos se convierten a minutos desde la medianoche.</li>
+<li>El último ID de usuario es 20, así que el siguiente libre es <strong>21</strong> (la guía menciona 22).</li>
+<li>El DML (Bloque B) se ejecuta sobre una <strong>copia</strong> de la base para no alterar <code>university.db</code>.</li>
+</ol>
+</section>
+<section class="cell md"><h2 id="0-configuracion">0. Configuración</h2>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="kn">import</span><span class="w"> </span><span class="nn">sqlite3</span><span class="o">,</span><span class="w"> </span><span class="nn">shutil</span><span class="o">,</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s1">'display.max_rows'</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="s1">'display.max_columns'</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="s1">'display.width'</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+
+<span class="c1"># En Colab: sube university.db cuando lo pida. En Antigravity/local: basta con tenerlo en la carpeta.</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s1">'university.db'</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">google.colab</span><span class="w"> </span><span class="kn">import</span> <span class="n">files</span>
+        <span class="n">files</span><span class="o">.</span><span class="n">upload</span><span class="p">()</span>          <span class="c1"># selecciona university.db</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s1">'Coloca university.db en la misma carpeta del cuaderno.'</span><span class="p">)</span>
+
+<span class="n">conn</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s1">'university.db'</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">q</span><span class="p">(</span><span class="n">sql</span><span class="p">,</span> <span class="n">conn</span><span class="o">=</span><span class="n">conn</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Ejecuta una consulta y devuelve un DataFrame."""</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql_query</span><span class="p">(</span><span class="n">sql</span><span class="p">,</span> <span class="n">conn</span><span class="p">)</span>
+
+<span class="n">q</span><span class="p">(</span><span class="s2">"SELECT name AS tabla FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><div class="table-wrap"><table class="df">
+<thead>
+<tr>
+<th></th>
+<th>tabla</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>FACULTADES</td>
+</tr>
+<tr>
+<th>1</th>
+<td>EDIFICIOS</td>
+</tr>
+<tr>
+<th>2</th>
+<td>ROLES</td>
+</tr>
+<tr>
+<th>3</th>
+<td>CARRERAS</td>
+</tr>
+<tr>
+<th>4</th>
+<td>CURSOS</td>
+</tr>
+<tr>
+<th>5</th>
+<td>SALONES</td>
+</tr>
+<tr>
+<th>6</th>
+<td>USUARIOS</td>
+</tr>
+<tr>
+<th>7</th>
+<td>CALENDARIO_CURSOS</td>
+</tr>
+<tr>
+<th>8</th>
+<td>CARRERAS_ESTUDIANTES</td>
+</tr>
+<tr>
+<th>9</th>
+<td>CURSOS_CARRERAS</td>
+</tr>
+<tr>
+<th>10</th>
+<td>CURSOS_ESTUDIANTES</td>
+</tr>
+</tbody>
+</table></div><div class="cap">11 filas × 1 columna</div></div></div>
+<section class="cell md"><h2 id="bloque-a-exploracion-ordenamiento-y-filtros">Bloque A: Exploración, ordenamiento y filtros</h2>
+</section>
+<section class="cell md"><h3 id="a1-todos-los-registros-de-usuarios">A1. Todos los registros de USUARIOS</h3>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">sql</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">SELECT * FROM USUARIOS;</span>
+<span class="s2">"""</span>
+<span class="n">q</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><div class="table-wrap"><table class="df">
+<thead>
+<tr>
+<th></th>
+<th class="num">ID_USUARIO</th>
+<th>NOMBRE</th>
+<th>APELLIDO</th>
+<th class="num">SEMESTRE</th>
+<th class="num">ID_ROL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td class="num">1</td>
+<td>Ben</td>
+<td>Stone</td>
+<td class="num">0</td>
+<td class="num">2</td>
+</tr>
+<tr>
+<th>1</th>
+<td class="num">2</td>
+<td>Grace</td>
+<td>Stone</td>
+<td class="num">0</td>
+<td class="num">2</td>
+</tr>
+<tr>
+<th>2</th>
+<td class="num">3</td>
+<td>Mikaela</td>
+<td>Stone</td>
+<td class="num">0</td>
+<td class="num">2</td>
+</tr>
+<tr>
+<th>3</th>
+<td class="num">4</td>
+<td>Jared</td>
+<td>Vásquez</td>
+<td class="num">0</td>
+<td class="num">2</td>
+</tr>
+<tr>
+<th>4</th>
+<td class="num">5</td>
+<td>Zeke</td>
+<td>Landon</td>
+<td class="num">0</td>
+<td class="num">2</td>
+</tr>
+<tr>
+<th>5</th>
+<td class="num">6</td>
+<td>Saanvi</td>
+<td>Bahl</td>
+<td class="num">0</td>
+<td class="num">2</td>
+</tr>
+<tr>
+<th>6</th>
+<td class="num">7</td>
+<td>Ulrich</td>
+<td>Nielsen</td>
+<td class="num">0</td>
+<td class="num">2</td>
+</tr>
+<tr>
+<th>7</th>
+<td class="num">8</td>
+<td>Charlotte</td>
+<td>Doppler</td>
+<td class="num">0</td>
+<td class="num">2</td>
+</tr>
+<tr>
+<th>8</th>
+<td class="num">9</td>
+<td>Claudia</td>
+<td>Tiedemann</td>
+<td class="num">0</td>
+<td class="num">2</td>
+</tr>
+<tr>
+<th>9</th>
+<td class="num">10</td>
+<td>Robert</td>
+<td>Vance</td>
+<td class="num">0</td>
+<td class="num">2</td>
+</tr>
+<tr>
+<th>10</th>
+<td class="num">11</td>
+<td>Olive</td>
+<td>Stone</td>
+<td class="num">5</td>
+<td class="num">1</td>
+</tr>
+<tr>
+<th>11</th>
+<td class="num">12</td>
+<td>Cal</td>
+<td>Stone</td>
+<td class="num">1</td>
+<td class="num">1</td>
+</tr>
+<tr>
+<th>12</th>
+<td class="num">13</td>
+<td>Angelina</td>
+<td>Meyer</td>
+<td class="num">5</td>
+<td class="num">1</td>
+</tr>
+<tr>
+<th>13</th>
+<td class="num">14</td>
+<td>Jonas</td>
+<td>Kahnwald</td>
+<td class="num">5</td>
+<td class="num">1</td>
+</tr>
+<tr>
+<th>14</th>
+<td class="num">15</td>
+<td>Martha</td>
+<td>Nielsen</td>
+<td class="num">5</td>
+<td class="num">1</td>
+</tr>
+<tr>
+<th>15</th>
+<td class="num">16</td>
+<td>Bartosz</td>
+<td>Tiedemann</td>
+<td class="num">5</td>
+<td class="num">1</td>
+</tr>
+<tr>
+<th>16</th>
+<td class="num">17</td>
+<td>Franziska</td>
+<td>Doppler</td>
+<td class="num">5</td>
+<td class="num">1</td>
+</tr>
+<tr>
+<th>17</th>
+<td class="num">18</td>
+<td>Elisabeth</td>
+<td>Doppler</td>
+<td class="num">1</td>
+<td class="num">1</td>
+</tr>
+<tr>
+<th>18</th>
+<td class="num">19</td>
+<td>Magnus</td>
+<td>Nielsen</td>
+<td class="num">6</td>
+<td class="num">1</td>
+</tr>
+<tr>
+<th>19</th>
+<td class="num">20</td>
+<td>Mads</td>
+<td>Nielsen</td>
+<td class="num">2</td>
+<td class="num">1</td>
+</tr>
+</tbody>
+</table></div><div class="cap">20 filas × 5 columnas</div></div></div>
+<section class="cell md interp"><p><strong>Interpretación:</strong> La universidad tiene 20 usuarios: 10 profesores (semestre 0, rol 2) y 10 estudiantes (rol 1). El campo SEMESTRE vale 0 para docentes, por lo que cualquier promedio académico debe filtrar por rol.</p>
+</section>
+<section class="cell md"><h3 id="a2-nombre-y-apellido-de-los-usuarios">A2. NOMBRE y APELLIDO de los usuarios</h3>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">sql</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">SELECT NOMBRE, APELLIDO FROM USUARIOS;</span>
+<span class="s2">"""</span>
+<span class="n">q</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><div class="table-wrap"><table class="df">
+<thead>
+<tr>
+<th></th>
+<th>NOMBRE</th>
+<th>APELLIDO</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>Ben</td>
+<td>Stone</td>
+</tr>
+<tr>
+<th>1</th>
+<td>Grace</td>
+<td>Stone</td>
+</tr>
+<tr>
+<th>2</th>
+<td>Mikaela</td>
+<td>Stone</td>
+</tr>
+<tr>
+<th>3</th>
+<td>Jared</td>
+<td>Vásquez</td>
+</tr>
+<tr>
+<th>4</th>
+<td>Zeke</td>
+<td>Landon</td>
+</tr>
+<tr>
+<th>5</th>
+<td>Saanvi</td>
+<td>Bahl</td>
+</tr>
+<tr>
+<th>6</th>
+<td>Ulrich</td>
+<td>Nielsen</td>
+</tr>
+<tr>
+<th>7</th>
+<td>Charlotte</td>
+<td>Doppler</td>
+</tr>
+<tr>
+<th>8</th>
+<td>Claudia</td>
+<td>Tiedemann</td>
+</tr>
+<tr>
+<th>9</th>
+<td>Robert</td>
+<td>Vance</td>
+</tr>
+<tr>
+<th>10</th>
+<td>Olive</td>
+<td>Stone</td>
+</tr>
+<tr>
+<th>11</th>
+<td>Cal</td>
+<td>Stone</td>
+</tr>
+<tr>
+<th>12</th>
+<td>Angelina</td>
+<td>Meyer</td>
+</tr>
+<tr>
+<th>13</th>
+<td>Jonas</td>
+<td>Kahnwald</td>
+</tr>
+<tr>
+<th>14</th>
+<td>Martha</td>
+<td>Nielsen</td>
+</tr>
+<tr>
+<th>15</th>
+<td>Bartosz</td>
+<td>Tiedemann</td>
+</tr>
+<tr>
+<th>16</th>
+<td>Franziska</td>
+<td>Doppler</td>
+</tr>
+<tr>
+<th>17</th>
+<td>Elisabeth</td>
+<td>Doppler</td>
+</tr>
+<tr>
+<th>18</th>
+<td>Magnus</td>
+<td>Nielsen</td>
+</tr>
+<tr>
+<th>19</th>
+<td>Mads</td>
+<td>Nielsen</td>
+</tr>
+</tbody>
+</table></div><div class="cap">20 filas × 2 columnas</div></div></div>
+<section class="cell md interp"><p><strong>Interpretación:</strong> Vista mínima de identificación. Útil para listados públicos de directorio sin exponer semestre ni rol.</p>
+</section>
+<section class="cell md"><h3 id="a3-carreras-en-orden-alfabetico-ascendente">A3. Carreras en orden alfabético ascendente</h3>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">sql</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">SELECT * FROM CARRERAS ORDER BY NOMBRE ASC;</span>
+<span class="s2">"""</span>
+<span class="n">q</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><div class="table-wrap"><table class="df">
+<thead>
+<tr>
+<th></th>
+<th class="num">ID_CARRERA</th>
+<th>NOMBRE</th>
+<th class="num">ID_FACULTAD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td class="num">4</td>
+<td>Filosofía</td>
+<td class="num">2</td>
+</tr>
+<tr>
+<th>1</th>
+<td class="num">2</td>
+<td>Ingeniería Mecánica</td>
+<td class="num">1</td>
+</tr>
+<tr>
+<th>2</th>
+<td class="num">1</td>
+<td>Ingeniería de Sistemas</td>
+<td class="num">1</td>
+</tr>
+<tr>
+<th>3</th>
+<td class="num">3</td>
+<td>Matemáticas Aplicadas</td>
+<td class="num">1</td>
+</tr>
+</tbody>
+</table></div><div class="cap">4 filas × 3 columnas</div></div></div>
+<section class="cell md interp"><p><strong>Interpretación:</strong> Hay solo 4 programas: tres en Ingeniería y Ciencias y uno (Filosofía) en Humanidades. La oferta de pregrado es reducida y concentrada en una facultad.</p>
+</section>
+<section class="cell md"><h3 id="a4-cursos-en-orden-alfabetico-descendente">A4. Cursos en orden alfabético descendente</h3>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">sql</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">SELECT * FROM CURSOS ORDER BY NOMBRE DESC;</span>
+<span class="s2">"""</span>
+<span class="n">q</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><div class="table-wrap"><table class="df">
+<thead>
+<tr>
+<th></th>
+<th class="num">ID_CURSO</th>
+<th>NOMBRE</th>
+<th>ID_FACULTAD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td class="num">67</td>
+<td>Ética</td>
+<td class="num">2.0</td>
+</tr>
+<tr>
+<th>1</th>
+<td class="num">9</td>
+<td>Árboles y Grafos</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>2</th>
+<td class="num">49</td>
+<td>Álgebra Moderna</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>3</th>
+<td class="num">45</td>
+<td>Álgebra Lineal</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>4</th>
+<td class="num">4</td>
+<td>Técnicas y Prácticas de Programación</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>5</th>
+<td class="num">38</td>
+<td>Transferencia de Calor</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>6</th>
+<td class="num">70</td>
+<td>Trabajo de Grado</td>
+<td class="na">NaN</td>
+</tr>
+<tr>
+<th>7</th>
+<td class="num">56</td>
+<td>Textos Filosóficos</td>
+<td class="num">2.0</td>
+</tr>
+<tr>
+<th>8</th>
+<td class="num">33</td>
+<td>Termodinámica</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>9</th>
+<td class="num">50</td>
+<td>Teoría de Probabilidades</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>10</th>
+<td class="num">57</td>
+<td>Teología</td>
+<td class="num">2.0</td>
+</tr>
+<tr>
+<th>11</th>
+<td class="num">18</td>
+<td>Sistemas Operativos</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>12</th>
+<td class="num">24</td>
+<td>Sistemas Inteligentes</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>13</th>
+<td class="num">29</td>
+<td>Química y Ciencia de Materiales</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>14</th>
+<td class="num">71</td>
+<td>Práctica Estudiantil</td>
+<td class="na">NaN</td>
+</tr>
+<tr>
+<th>15</th>
+<td class="num">32</td>
+<td>Propiedades de los Materiales</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>16</th>
+<td class="num">19</td>
+<td>Programación Paralela</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>17</th>
+<td class="num">5</td>
+<td>Programación Orientada a Objetos</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>18</th>
+<td class="num">7</td>
+<td>Programación Funcional</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>19</th>
+<td class="num">53</td>
+<td>Optimización Matemática</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>20</th>
+<td class="num">63</td>
+<td>Ontología</td>
+<td class="num">2.0</td>
+</tr>
+<tr>
+<th>21</th>
+<td class="num">40</td>
+<td>Máquinas Térmicas e Hidráulicas</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>22</th>
+<td class="num">35</td>
+<td>Mecánica de Sólidos</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>23</th>
+<td class="num">36</td>
+<td>Mecánica de Fluidos</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>24</th>
+<td class="num">46</td>
+<td>Matemáticas Discretas</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>25</th>
+<td class="num">8</td>
+<td>Lógica para Ciencias de la Computación</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>26</th>
+<td class="num">6</td>
+<td>Lógica Digital y Lenguaje de Máquina</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>27</th>
+<td class="num">2</td>
+<td>Introducción al Modelado de Sistemas</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>28</th>
+<td class="num">22</td>
+<td>Introducción a la Seguridad Informática</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>29</th>
+<td class="num">1</td>
+<td>Introducción a la Programación</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>30</th>
+<td class="num">59</td>
+<td>Humanidades</td>
+<td class="num">2.0</td>
+</tr>
+<tr>
+<th>31</th>
+<td class="num">55</td>
+<td>Griego y Latín</td>
+<td class="num">2.0</td>
+</tr>
+<tr>
+<th>32</th>
+<td class="num">17</td>
+<td>Gestión y Modelación de Datos</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>33</th>
+<td class="num">43</td>
+<td>Geometría Plana y Analítica</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>34</th>
+<td class="num">30</td>
+<td>Física Térmica y Ondulatoria</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>35</th>
+<td class="num">42</td>
+<td>Fundamentos de Matemáticas</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>36</th>
+<td class="num">41</td>
+<td>Fundamentos de Automatización</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>37</th>
+<td class="num">68</td>
+<td>Filosofía del Lenguaje</td>
+<td class="num">2.0</td>
+</tr>
+<tr>
+<th>38</th>
+<td class="num">66</td>
+<td>Filosofía de la Ciencia</td>
+<td class="num">2.0</td>
+</tr>
+<tr>
+<th>39</th>
+<td class="num">69</td>
+<td>Filosofía No Occidental</td>
+<td class="num">2.0</td>
+</tr>
+<tr>
+<th>40</th>
+<td class="num">62</td>
+<td>Filosofía Moderna</td>
+<td class="num">2.0</td>
+</tr>
+<tr>
+<th>41</th>
+<td class="num">60</td>
+<td>Filosofía Medieval</td>
+<td class="num">2.0</td>
+</tr>
+<tr>
+<th>42</th>
+<td class="num">64</td>
+<td>Filosofía Contemporánea</td>
+<td class="num">2.0</td>
+</tr>
+<tr>
+<th>43</th>
+<td class="num">58</td>
+<td>Filosofía Antigua</td>
+<td class="num">2.0</td>
+</tr>
+<tr>
+<th>44</th>
+<td class="num">31</td>
+<td>Estática</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>45</th>
+<td class="num">3</td>
+<td>Estructuras de Datos</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>46</th>
+<td class="num">52</td>
+<td>Estadítica Aplicada</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>47</th>
+<td class="num">54</td>
+<td>Estadística Avanzada</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>48</th>
+<td class="num">61</td>
+<td>Epistemología</td>
+<td class="num">2.0</td>
+</tr>
+<tr>
+<th>49</th>
+<td class="num">37</td>
+<td>Electrotecnia</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>50</th>
+<td class="num">34</td>
+<td>Electricidad y Magnetismo</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>51</th>
+<td class="num">51</td>
+<td>Ecuaciones Diferenciales</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>52</th>
+<td class="num">11</td>
+<td>Diseño de Interfaces Humano-Computador</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>53</th>
+<td class="num">39</td>
+<td>Diseño Mecánico</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>54</th>
+<td class="num">27</td>
+<td>Dibujo Mecánico</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>55</th>
+<td class="num">26</td>
+<td>Desarrollo de Videouegos</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>56</th>
+<td class="num">15</td>
+<td>Desarrollo Formal de Sistemas</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>57</th>
+<td class="num">48</td>
+<td>Cálculo Multivariado</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>58</th>
+<td class="num">47</td>
+<td>Cálculo Integral</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>59</th>
+<td class="num">44</td>
+<td>Cálculo Diferencial</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>60</th>
+<td class="num">23</td>
+<td>Construcción de Software y Pruebas</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>61</th>
+<td class="num">14</td>
+<td>Comunicación de Datos</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>62</th>
+<td class="num">25</td>
+<td>Computación en la Nube</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>63</th>
+<td class="num">13</td>
+<td>Computación Gráfica</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>64</th>
+<td class="num">12</td>
+<td>Computabilidad y Complejidad</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>65</th>
+<td class="num">28</td>
+<td>Cinemática y Dinámica</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>66</th>
+<td class="num">10</td>
+<td>Arquitectura del Computador</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>67</th>
+<td class="num">20</td>
+<td>Aprendizaje Automático</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>68</th>
+<td class="num">16</td>
+<td>Análisis y Diseño de Algoritmos</td>
+<td class="num">1.0</td>
+</tr>
+<tr>
+<th>69</th>
+<td class="num">65</td>
+<td>Antropología Filosófica</td>
+<td class="num">2.0</td>
+</tr>
+<tr>
+<th>70</th>
+<td class="num">21</td>
+<td>Animación y Simulación</td>
+<td class="num">1.0</td>
+</tr>
+</tbody>
+</table></div><div class="cap">71 filas × 3 columnas</div></div></div>
+<section class="cell md interp"><p><strong>Interpretación:</strong> El orden descendente en SQLite es por código de caracteres, así que las palabras con tilde (Árboles, Álgebra) quedan mal ubicadas, después de 'Ética'. Si se necesita orden lingüístico hay que normalizar acentos o usar una colación. También aparece 'Trabajo de Grado' con ID_FACULTAD NULL.</p>
+</section>
+<section class="cell md"><h3 id="a5-estudiantes-en-semestre-2">A5. Estudiantes en semestre 2</h3>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">sql</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">SELECT * FROM USUARIOS WHERE ID_ROL = 1 AND SEMESTRE = 2;</span>
+<span class="s2">"""</span>
+<span class="n">q</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><div class="table-wrap"><table class="df">
+<thead>
+<tr>
+<th></th>
+<th class="num">ID_USUARIO</th>
+<th>NOMBRE</th>
+<th>APELLIDO</th>
+<th class="num">SEMESTRE</th>
+<th class="num">ID_ROL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td class="num">20</td>
+<td>Mads</td>
+<td>Nielsen</td>
+<td class="num">2</td>
+<td class="num">1</td>
+</tr>
+</tbody>
+</table></div><div class="cap">1 fila × 5 columnas</div></div></div>
+<section class="cell md interp"><p><strong>Interpretación:</strong> Solo un estudiante (Mads Nielsen, ID 20) cursa semestre 2: la cohorte de primer año es muy pequeña.</p>
+</section>
+<section class="cell md"><h3 id="a6-usuarios-con-apellido-gomez">A6. Usuarios con apellido 'Gomez'</h3>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">sql</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">SELECT * FROM USUARIOS WHERE APELLIDO = 'Gomez';</span>
+<span class="s2">"""</span>
+<span class="n">q</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><div class="empty">Sin resultados: la consulta devolvió 0 filas (5 columnas: ID_USUARIO, NOMBRE, APELLIDO, SEMESTRE, ID_ROL).</div></div></div>
+<section class="cell md interp"><p><strong>Interpretación:</strong> Ningún usuario tiene el apellido 'Gomez' (el ejemplo de la guía es genérico). Un resultado vacío es una respuesta válida: no es un error de sintaxis.</p>
+</section>
+<section class="cell md"><h3 id="a7-estudiantes-en-semestre-1-o-2">A7. Estudiantes en semestre 1 o 2</h3>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">sql</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">SELECT * FROM USUARIOS WHERE ID_ROL = 1 AND SEMESTRE IN (1, 2);</span>
+<span class="s2">"""</span>
+<span class="n">q</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><div class="table-wrap"><table class="df">
+<thead>
+<tr>
+<th></th>
+<th class="num">ID_USUARIO</th>
+<th>NOMBRE</th>
+<th>APELLIDO</th>
+<th class="num">SEMESTRE</th>
+<th class="num">ID_ROL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td class="num">12</td>
+<td>Cal</td>
+<td>Stone</td>
+<td class="num">1</td>
+<td class="num">1</td>
+</tr>
+<tr>
+<th>1</th>
+<td class="num">18</td>
+<td>Elisabeth</td>
+<td>Doppler</td>
+<td class="num">1</td>
+<td class="num">1</td>
+</tr>
+<tr>
+<th>2</th>
+<td class="num">20</td>
+<td>Mads</td>
+<td>Nielsen</td>
+<td class="num">2</td>
+<td class="num">1</td>
+</tr>
+</tbody>
+</table></div><div class="cap">3 filas × 5 columnas</div></div></div>
+<section class="cell md interp"><p><strong>Interpretación:</strong> Tres estudiantes están en los semestres iniciales (Cal Stone, Elisabeth Doppler y Mads Nielsen). Dos de ellos no tienen matrículas (ver D1).</p>
+</section>
+<section class="cell md"><h3 id="a8-asignaturas-de-ingenieria-y-ciencias-relacionadas-con-int">A8. Asignaturas de Ingeniería y Ciencias relacionadas con inteligencia/datos</h3>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">sql</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">SELECT ID_CURSO, NOMBRE</span>
+<span class="s2">FROM CURSOS</span>
+<span class="s2">WHERE ID_FACULTAD = 1</span>
+<span class="s2">  AND (NOMBRE LIKE '%Inteligentes%' OR NOMBRE LIKE '%Aprendizaje%' OR NOMBRE LIKE '%Datos%')</span>
+<span class="s2">ORDER BY NOMBRE;</span>
+<span class="s2">"""</span>
+<span class="n">q</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><div class="table-wrap"><table class="df">
+<thead>
+<tr>
+<th></th>
+<th class="num">ID_CURSO</th>
+<th>NOMBRE</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td class="num">20</td>
+<td>Aprendizaje Automático</td>
+</tr>
+<tr>
+<th>1</th>
+<td class="num">14</td>
+<td>Comunicación de Datos</td>
+</tr>
+<tr>
+<th>2</th>
+<td class="num">3</td>
+<td>Estructuras de Datos</td>
+</tr>
+<tr>
+<th>3</th>
+<td class="num">17</td>
+<td>Gestión y Modelación de Datos</td>
+</tr>
+<tr>
+<th>4</th>
+<td class="num">24</td>
+<td>Sistemas Inteligentes</td>
+</tr>
+</tbody>
+</table></div><div class="cap">5 filas × 2 columnas</div></div></div>
+<section class="cell md interp"><p><strong>Interpretación:</strong> Cinco asignaturas de la facultad 1 coinciden con los patrones. 'Estructuras de Datos', 'Aprendizaje Automático' y 'Sistemas Inteligentes' están programadas, pero las dos últimas no tienen estudiantes (ver D4); las otras dos no tienen horario (ver D2).</p>
+</section>
+<section class="cell md"><h2 id="bloque-b-manipulacion-de-datos-dml">Bloque B: Manipulación de datos (DML)</h2>
+<p>Se trabaja sobre una copia (<code>university_dml.db</code>).</p>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="s1">'university.db'</span><span class="p">,</span> <span class="s1">'university_dml.db'</span><span class="p">)</span>
+<span class="n">dml</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s1">'university_dml.db'</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">run_dml</span><span class="p">(</span><span class="n">sql</span><span class="p">):</span>
+    <span class="n">dml</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sql</span><span class="p">);</span> <span class="n">dml</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">'OK:'</span><span class="p">,</span> <span class="n">sql</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">'...'</span><span class="p">)</span>
+</code></pre></details></div>
+<section class="cell md"><h3 id="b1-insertar-una-nueva-facultad">B1. Insertar una nueva facultad</h3>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">run_dml</span><span class="p">(</span><span class="s2">"""</span>
+<span class="s2">INSERT INTO FACULTADES (ID_FACULTAD, NOMBRE)</span>
+<span class="s2">VALUES (3, 'Artes y Diseño');</span>
+<span class="s2">"""</span><span class="p">)</span>
+<span class="n">q</span><span class="p">(</span><span class="s2">"""</span>
+<span class="s2">SELECT * FROM FACULTADES;</span>
+<span class="s2">"""</span><span class="p">,</span> <span class="n">dml</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><pre class="out">OK: INSERT INTO FACULTADES (ID_FACULTAD, NOMBRE) ...</pre><div class="table-wrap"><table class="df">
+<thead>
+<tr>
+<th></th>
+<th class="num">ID_FACULTAD</th>
+<th>NOMBRE</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td class="num">1</td>
+<td>Ingeniería y Ciencias</td>
+</tr>
+<tr>
+<th>1</th>
+<td class="num">2</td>
+<td>Humanidades y Ciencias Sociales</td>
+</tr>
+<tr>
+<th>2</th>
+<td class="num">3</td>
+<td>Artes y Diseño</td>
+</tr>
+</tbody>
+</table></div><div class="cap">3 filas × 2 columnas</div></div></div>
+<section class="cell md interp"><p><strong>Interpretación:</strong> Se añadió la facultad con ID 3; ahora hay 3 filas.</p>
+</section>
+<section class="cell md"><h3 id="b2-eliminar-la-facultad-recien-insertada">B2. Eliminar la facultad recién insertada</h3>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">run_dml</span><span class="p">(</span><span class="s2">"""</span>
+<span class="s2">DELETE FROM FACULTADES WHERE ID_FACULTAD = 3;</span>
+<span class="s2">"""</span><span class="p">)</span>
+<span class="n">q</span><span class="p">(</span><span class="s2">"SELECT * FROM FACULTADES"</span> <span class="k">if</span> <span class="s2">"FACULTADES"</span> <span class="ow">in</span> <span class="s2">"""DELETE FROM FACULTADES WHERE ID_FACULTAD = 3;"""</span> <span class="k">else</span> <span class="s2">"SELECT * FROM USUARIOS WHERE ID_USUARIO = 21"</span><span class="p">,</span> <span class="n">dml</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><pre class="out">OK: DELETE FROM FACULTADES WHERE ID_FACULTAD = 3; ...</pre><div class="table-wrap"><table class="df">
+<thead>
+<tr>
+<th></th>
+<th class="num">ID_FACULTAD</th>
+<th>NOMBRE</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td class="num">1</td>
+<td>Ingeniería y Ciencias</td>
+</tr>
+<tr>
+<th>1</th>
+<td class="num">2</td>
+<td>Humanidades y Ciencias Sociales</td>
+</tr>
+</tbody>
+</table></div><div class="cap">2 filas × 2 columnas</div></div></div>
+<section class="cell md interp"><p><strong>Interpretación:</strong> La facultad se eliminó; es seguro porque ninguna carrera ni curso la referencia.</p>
+</section>
+<section class="cell md"><h3 id="b3-verificar-que-la-facultad-fue-eliminada">B3. Verificar que la facultad fue eliminada</h3>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">q</span><span class="p">(</span><span class="s2">"""</span>
+<span class="s2">SELECT * FROM FACULTADES WHERE ID_FACULTAD = 3;</span>
+<span class="s2">"""</span><span class="p">,</span> <span class="n">dml</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><div class="empty">Sin resultados: la consulta devolvió 0 filas (2 columnas: ID_FACULTAD, NOMBRE).</div></div></div>
+<section class="cell md interp"><p><strong>Interpretación:</strong> Resultado vacío: el borrado se confirmó.</p>
+</section>
+<section class="cell md"><h3 id="b4-insertar-un-nuevo-estudiante-id-rol-1">B4. Insertar un nuevo estudiante (ID_ROL = 1)</h3>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">run_dml</span><span class="p">(</span><span class="s2">"""</span>
+<span class="s2">INSERT INTO USUARIOS (ID_USUARIO, NOMBRE, APELLIDO, SEMESTRE, ID_ROL)</span>
+<span class="s2">VALUES (21, 'Laura', 'Gomez', 1, 1);</span>
+<span class="s2">"""</span><span class="p">)</span>
+<span class="n">q</span><span class="p">(</span><span class="s2">"SELECT * FROM FACULTADES"</span> <span class="k">if</span> <span class="s2">"FACULTADES"</span> <span class="ow">in</span> <span class="s2">"""INSERT INTO USUARIOS (ID_USUARIO, NOMBRE, APELLIDO, SEMESTRE, ID_ROL)</span>
+<span class="s2">VALUES (21, 'Laura', 'Gomez', 1, 1);"""</span> <span class="k">else</span> <span class="s2">"SELECT * FROM USUARIOS WHERE ID_USUARIO = 21"</span><span class="p">,</span> <span class="n">dml</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><pre class="out">OK: INSERT INTO USUARIOS (ID_USUARIO, NOMBRE, APELLIDO, SEMESTRE, ID_ROL) ...</pre><div class="table-wrap"><table class="df">
+<thead>
+<tr>
+<th></th>
+<th class="num">ID_USUARIO</th>
+<th>NOMBRE</th>
+<th>APELLIDO</th>
+<th class="num">SEMESTRE</th>
+<th class="num">ID_ROL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td class="num">21</td>
+<td>Laura</td>
+<td>Gomez</td>
+<td class="num">1</td>
+<td class="num">1</td>
+</tr>
+</tbody>
+</table></div><div class="cap">1 fila × 5 columnas</div></div></div>
+<section class="cell md interp"><p><strong>Interpretación:</strong> Registrada con ID 21 y rol de estudiante.</p>
+</section>
+<section class="cell md"><h3 id="b5-verificar-el-nuevo-registro">B5. Verificar el nuevo registro</h3>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">q</span><span class="p">(</span><span class="s2">"""</span>
+<span class="s2">SELECT u.*, r.NOMBRE AS rol FROM USUARIOS u JOIN ROLES r ON r.ID_ROL = u.ID_ROL WHERE u.ID_USUARIO = 21;</span>
+<span class="s2">"""</span><span class="p">,</span> <span class="n">dml</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><div class="table-wrap"><table class="df">
+<thead>
+<tr>
+<th></th>
+<th class="num">ID_USUARIO</th>
+<th>NOMBRE</th>
+<th>APELLIDO</th>
+<th class="num">SEMESTRE</th>
+<th class="num">ID_ROL</th>
+<th>rol</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td class="num">21</td>
+<td>Laura</td>
+<td>Gomez</td>
+<td class="num">1</td>
+<td class="num">1</td>
+<td>Estudiante</td>
+</tr>
+</tbody>
+</table></div><div class="cap">1 fila × 6 columnas</div></div></div>
+<section class="cell md interp"><p><strong>Interpretación:</strong> Se guardó con el rol 'Estudiante'. Ahora la consulta A6 (apellido 'Gomez') ya devolvería una fila.</p>
+</section>
+<section class="cell md"><h3 id="b6-actualizar-el-semestre-del-estudiante-a-4">B6. Actualizar el semestre del estudiante a 4</h3>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">run_dml</span><span class="p">(</span><span class="s2">"""</span>
+<span class="s2">UPDATE USUARIOS SET SEMESTRE = 4 WHERE ID_USUARIO = 21;</span>
+<span class="s2">"""</span><span class="p">)</span>
+<span class="n">q</span><span class="p">(</span><span class="s2">"""</span>
+<span class="s2">SELECT * FROM USUARIOS WHERE ID_USUARIO = 21;</span>
+<span class="s2">"""</span><span class="p">,</span> <span class="n">dml</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><pre class="out">OK: UPDATE USUARIOS SET SEMESTRE = 4 WHERE ID_USUARIO = 21; ...</pre><div class="table-wrap"><table class="df">
+<thead>
+<tr>
+<th></th>
+<th class="num">ID_USUARIO</th>
+<th>NOMBRE</th>
+<th>APELLIDO</th>
+<th class="num">SEMESTRE</th>
+<th class="num">ID_ROL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td class="num">21</td>
+<td>Laura</td>
+<td>Gomez</td>
+<td class="num">4</td>
+<td class="num">1</td>
+</tr>
+</tbody>
+</table></div><div class="cap">1 fila × 5 columnas</div></div></div>
+<section class="cell md interp"><p><strong>Interpretación:</strong> El semestre cambió de 1 a 4. El WHERE con la clave primaria evita modificar otras filas.</p>
+</section>
+<section class="cell md"><h3 id="b7-eliminar-el-estudiante-ingresado">B7. Eliminar el estudiante ingresado</h3>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">run_dml</span><span class="p">(</span><span class="s2">"""</span>
+<span class="s2">DELETE FROM USUARIOS WHERE ID_USUARIO = 21;</span>
+<span class="s2">"""</span><span class="p">)</span>
+<span class="n">q</span><span class="p">(</span><span class="s2">"""</span>
+<span class="s2">SELECT COUNT(*) AS total_usuarios FROM USUARIOS;</span>
+<span class="s2">"""</span><span class="p">,</span> <span class="n">dml</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><pre class="out">OK: DELETE FROM USUARIOS WHERE ID_USUARIO = 21; ...</pre><div class="table-wrap"><table class="df">
+<thead>
+<tr>
+<th></th>
+<th class="num">total_usuarios</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td class="num">20</td>
+</tr>
+</tbody>
+</table></div><div class="cap">1 fila × 1 columna</div></div></div>
+<section class="cell md interp"><p><strong>Interpretación:</strong> El registro se eliminó y el conteo volvió a 20.</p>
+</section>
+<section class="cell md"><h3 id="b8-verificar-la-eliminacion-del-estudiante">B8. Verificar la eliminación del estudiante</h3>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">q</span><span class="p">(</span><span class="s2">"""</span>
+<span class="s2">SELECT * FROM USUARIOS WHERE ID_USUARIO = 21;</span>
+<span class="s2">"""</span><span class="p">,</span> <span class="n">dml</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><div class="empty">Sin resultados: la consulta devolvió 0 filas (5 columnas: ID_USUARIO, NOMBRE, APELLIDO, SEMESTRE, ID_ROL).</div></div></div>
+<section class="cell md interp"><p><strong>Interpretación:</strong> Resultado vacío: el estudiante ya no existe.</p>
+</section>
+<section class="cell md"><h2 id="bloque-c-cruces-relacionales-inner-join">Bloque C: Cruces relacionales (INNER JOIN)</h2>
+</section>
+<section class="cell md"><h3 id="c1-cada-carrera-con-su-facultad">C1. Cada carrera con su facultad</h3>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">sql</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">SELECT c.NOMBRE AS carrera, f.NOMBRE AS facultad</span>
+<span class="s2">FROM CARRERAS c</span>
+<span class="s2">INNER JOIN FACULTADES f ON f.ID_FACULTAD = c.ID_FACULTAD;</span>
+<span class="s2">"""</span>
+<span class="n">q</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><div class="table-wrap"><table class="df">
+<thead>
+<tr>
+<th></th>
+<th>carrera</th>
+<th>facultad</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>Ingeniería de Sistemas</td>
+<td>Ingeniería y Ciencias</td>
+</tr>
+<tr>
+<th>1</th>
+<td>Ingeniería Mecánica</td>
+<td>Ingeniería y Ciencias</td>
+</tr>
+<tr>
+<th>2</th>
+<td>Matemáticas Aplicadas</td>
+<td>Ingeniería y Ciencias</td>
+</tr>
+<tr>
+<th>3</th>
+<td>Filosofía</td>
+<td>Humanidades y Ciencias Sociales</td>
+</tr>
+</tbody>
+</table></div><div class="cap">4 filas × 2 columnas</div></div></div>
+<section class="cell md interp"><p><strong>Interpretación:</strong> Tres carreras dependen de Ingeniería y Ciencias y una de Humanidades. Es la base de cualquier reporte por facultad.</p>
+</section>
+<section class="cell md"><h3 id="c2-usuarios-con-rol-de-estudiante">C2. Usuarios con rol de estudiante</h3>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">sql</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">SELECT u.NOMBRE, u.APELLIDO</span>
+<span class="s2">FROM USUARIOS u</span>
+<span class="s2">INNER JOIN ROLES r ON r.ID_ROL = u.ID_ROL</span>
+<span class="s2">WHERE r.NOMBRE = 'Estudiante';</span>
+<span class="s2">"""</span>
+<span class="n">q</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><div class="table-wrap"><table class="df">
+<thead>
+<tr>
+<th></th>
+<th>NOMBRE</th>
+<th>APELLIDO</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>Olive</td>
+<td>Stone</td>
+</tr>
+<tr>
+<th>1</th>
+<td>Cal</td>
+<td>Stone</td>
+</tr>
+<tr>
+<th>2</th>
+<td>Angelina</td>
+<td>Meyer</td>
+</tr>
+<tr>
+<th>3</th>
+<td>Jonas</td>
+<td>Kahnwald</td>
+</tr>
+<tr>
+<th>4</th>
+<td>Martha</td>
+<td>Nielsen</td>
+</tr>
+<tr>
+<th>5</th>
+<td>Bartosz</td>
+<td>Tiedemann</td>
+</tr>
+<tr>
+<th>6</th>
+<td>Franziska</td>
+<td>Doppler</td>
+</tr>
+<tr>
+<th>7</th>
+<td>Elisabeth</td>
+<td>Doppler</td>
+</tr>
+<tr>
+<th>8</th>
+<td>Magnus</td>
+<td>Nielsen</td>
+</tr>
+<tr>
+<th>9</th>
+<td>Mads</td>
+<td>Nielsen</td>
+</tr>
+</tbody>
+</table></div><div class="cap">10 filas × 2 columnas</div></div></div>
+<section class="cell md interp"><p><strong>Interpretación:</strong> Diez estudiantes con rol 1. El JOIN con ROLES evita depender del número mágico del ID_ROL.</p>
+</section>
+<section class="cell md"><h3 id="c3-usuarios-con-rol-de-profesor">C3. Usuarios con rol de profesor</h3>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">sql</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">SELECT u.NOMBRE, u.APELLIDO</span>
+<span class="s2">FROM USUARIOS u</span>
+<span class="s2">INNER JOIN ROLES r ON r.ID_ROL = u.ID_ROL</span>
+<span class="s2">WHERE r.NOMBRE = 'Profesor';</span>
+<span class="s2">"""</span>
+<span class="n">q</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><div class="table-wrap"><table class="df">
+<thead>
+<tr>
+<th></th>
+<th>NOMBRE</th>
+<th>APELLIDO</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>Ben</td>
+<td>Stone</td>
+</tr>
+<tr>
+<th>1</th>
+<td>Grace</td>
+<td>Stone</td>
+</tr>
+<tr>
+<th>2</th>
+<td>Mikaela</td>
+<td>Stone</td>
+</tr>
+<tr>
+<th>3</th>
+<td>Jared</td>
+<td>Vásquez</td>
+</tr>
+<tr>
+<th>4</th>
+<td>Zeke</td>
+<td>Landon</td>
+</tr>
+<tr>
+<th>5</th>
+<td>Saanvi</td>
+<td>Bahl</td>
+</tr>
+<tr>
+<th>6</th>
+<td>Ulrich</td>
+<td>Nielsen</td>
+</tr>
+<tr>
+<th>7</th>
+<td>Charlotte</td>
+<td>Doppler</td>
+</tr>
+<tr>
+<th>8</th>
+<td>Claudia</td>
+<td>Tiedemann</td>
+</tr>
+<tr>
+<th>9</th>
+<td>Robert</td>
+<td>Vance</td>
+</tr>
+</tbody>
+</table></div><div class="cap">10 filas × 2 columnas</div></div></div>
+<section class="cell md interp"><p><strong>Interpretación:</strong> Diez profesores con rol 2, mismo tamaño que la población estudiantil: relación 1 docente por estudiante.</p>
+</section>
+<section class="cell md"><h3 id="c4-cursos-matriculados-por-cada-estudiante">C4. Cursos matriculados por cada estudiante</h3>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">sql</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">SELECT u.NOMBRE || ' ' || u.APELLIDO AS estudiante, cu.NOMBRE AS curso</span>
+<span class="s2">FROM CURSOS_ESTUDIANTES ce</span>
+<span class="s2">INNER JOIN USUARIOS u ON u.ID_USUARIO = ce.ID_USUARIO</span>
+<span class="s2">INNER JOIN CALENDARIO_CURSOS cc ON cc.ID_CALENDARIO = ce.ID_CALENDARIO</span>
+<span class="s2">INNER JOIN CURSOS cu ON cu.ID_CURSO = cc.ID_CURSO</span>
+<span class="s2">ORDER BY estudiante, curso;</span>
+<span class="s2">"""</span>
+<span class="n">q</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><div class="table-wrap"><table class="df">
+<thead>
+<tr>
+<th></th>
+<th>estudiante</th>
+<th>curso</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>Angelina Meyer</td>
+<td>Filosofía Antigua</td>
+</tr>
+<tr>
+<th>1</th>
+<td>Angelina Meyer</td>
+<td>Teología</td>
+</tr>
+<tr>
+<th>2</th>
+<td>Bartosz Tiedemann</td>
+<td>Cinemática y Dinámica</td>
+</tr>
+<tr>
+<th>3</th>
+<td>Bartosz Tiedemann</td>
+<td>Cinemática y Dinámica</td>
+</tr>
+<tr>
+<th>4</th>
+<td>Bartosz Tiedemann</td>
+<td>Cinemática y Dinámica</td>
+</tr>
+<tr>
+<th>5</th>
+<td>Bartosz Tiedemann</td>
+<td>Cálculo Diferencial</td>
+</tr>
+<tr>
+<th>6</th>
+<td>Bartosz Tiedemann</td>
+<td>Cálculo Diferencial</td>
+</tr>
+<tr>
+<th>7</th>
+<td>Bartosz Tiedemann</td>
+<td>Cálculo Integral</td>
+</tr>
+<tr>
+<th>8</th>
+<td>Bartosz Tiedemann</td>
+<td>Cálculo Integral</td>
+</tr>
+<tr>
+<th>9</th>
+<td>Bartosz Tiedemann</td>
+<td>Cálculo Multivariado</td>
+</tr>
+<tr>
+<th>10</th>
+<td>Bartosz Tiedemann</td>
+<td>Cálculo Multivariado</td>
+</tr>
+<tr>
+<th>11</th>
+<td>Bartosz Tiedemann</td>
+<td>Dibujo Mecánico</td>
+</tr>
+<tr>
+<th>12</th>
+<td>Bartosz Tiedemann</td>
+<td>Dibujo Mecánico</td>
+</tr>
+<tr>
+<th>13</th>
+<td>Bartosz Tiedemann</td>
+<td>Electricidad y Magnetismo</td>
+</tr>
+<tr>
+<th>14</th>
+<td>Bartosz Tiedemann</td>
+<td>Electricidad y Magnetismo</td>
+</tr>
+<tr>
+<th>15</th>
+<td>Bartosz Tiedemann</td>
+<td>Electricidad y Magnetismo</td>
+</tr>
+<tr>
+<th>16</th>
+<td>Bartosz Tiedemann</td>
+<td>Física Térmica y Ondulatoria</td>
+</tr>
+<tr>
+<th>17</th>
+<td>Bartosz Tiedemann</td>
+<td>Física Térmica y Ondulatoria</td>
+</tr>
+<tr>
+<th>18</th>
+<td>Bartosz Tiedemann</td>
+<td>Física Térmica y Ondulatoria</td>
+</tr>
+<tr>
+<th>19</th>
+<td>Bartosz Tiedemann</td>
+<td>Mecánica de Sólidos</td>
+</tr>
+<tr>
+<th>20</th>
+<td>Bartosz Tiedemann</td>
+<td>Propiedades de los Materiales</td>
+</tr>
+<tr>
+<th>21</th>
+<td>Bartosz Tiedemann</td>
+<td>Propiedades de los Materiales</td>
+</tr>
+<tr>
+<th>22</th>
+<td>Bartosz Tiedemann</td>
+<td>Química y Ciencia de Materiales</td>
+</tr>
+<tr>
+<th>23</th>
+<td>Bartosz Tiedemann</td>
+<td>Química y Ciencia de Materiales</td>
+</tr>
+<tr>
+<th>24</th>
+<td>Bartosz Tiedemann</td>
+<td>Teología</td>
+</tr>
+<tr>
+<th>25</th>
+<td>Bartosz Tiedemann</td>
+<td>Termodinámica</td>
+</tr>
+<tr>
+<th>26</th>
+<td>Bartosz Tiedemann</td>
+<td>Termodinámica</td>
+</tr>
+<tr>
+<th>27</th>
+<td>Bartosz Tiedemann</td>
+<td>Termodinámica</td>
+</tr>
+<tr>
+<th>28</th>
+<td>Bartosz Tiedemann</td>
+<td>Álgebra Lineal</td>
+</tr>
+<tr>
+<th>29</th>
+<td>Bartosz Tiedemann</td>
+<td>Álgebra Lineal</td>
+</tr>
+<tr>
+<th>30</th>
+<td>Franziska Doppler</td>
+<td>Arquitectura del Computador</td>
+</tr>
+<tr>
+<th>31</th>
+<td>Franziska Doppler</td>
+<td>Arquitectura del Computador</td>
+</tr>
+<tr>
+<th>32</th>
+<td>Franziska Doppler</td>
+<td>Cinemática y Dinámica</td>
+</tr>
+<tr>
+<th>33</th>
+<td>Franziska Doppler</td>
+<td>Cinemática y Dinámica</td>
+</tr>
+<tr>
+<th>34</th>
+<td>Franziska Doppler</td>
+<td>Cinemática y Dinámica</td>
+</tr>
+<tr>
+<th>35</th>
+<td>Franziska Doppler</td>
+<td>Cálculo Diferencial</td>
+</tr>
+<tr>
+<th>36</th>
+<td>Franziska Doppler</td>
+<td>Cálculo Diferencial</td>
+</tr>
+<tr>
+<th>37</th>
+<td>Franziska Doppler</td>
+<td>Cálculo Integral</td>
+</tr>
+<tr>
+<th>38</th>
+<td>Franziska Doppler</td>
+<td>Cálculo Integral</td>
+</tr>
+<tr>
+<th>39</th>
+<td>Franziska Doppler</td>
+<td>Cálculo Multivariado</td>
+</tr>
+<tr>
+<th>40</th>
+<td>Franziska Doppler</td>
+<td>Cálculo Multivariado</td>
+</tr>
+<tr>
+<th>41</th>
+<td>Franziska Doppler</td>
+<td>Estructuras de Datos</td>
+</tr>
+<tr>
+<th>42</th>
+<td>Franziska Doppler</td>
+<td>Estructuras de Datos</td>
+</tr>
+<tr>
+<th>43</th>
+<td>Franziska Doppler</td>
+<td>Introducción a la Programación</td>
+</tr>
+<tr>
+<th>44</th>
+<td>Franziska Doppler</td>
+<td>Introducción a la Programación</td>
+</tr>
+<tr>
+<th>45</th>
+<td>Franziska Doppler</td>
+<td>Lógica Digital y Lenguaje de Máquina</td>
+</tr>
+<tr>
+<th>46</th>
+<td>Franziska Doppler</td>
+<td>Lógica Digital y Lenguaje de Máquina</td>
+</tr>
+<tr>
+<th>47</th>
+<td>Franziska Doppler</td>
+<td>Técnicas y Prácticas de Programación</td>
+</tr>
+<tr>
+<th>48</th>
+<td>Franziska Doppler</td>
+<td>Técnicas y Prácticas de Programación</td>
+</tr>
+<tr>
+<th>49</th>
+<td>Franziska Doppler</td>
+<td>Álgebra Lineal</td>
+</tr>
+<tr>
+<th>50</th>
+<td>Franziska Doppler</td>
+<td>Álgebra Lineal</td>
+</tr>
+<tr>
+<th>51</th>
+<td>Jonas Kahnwald</td>
+<td>Cinemática y Dinámica</td>
+</tr>
+<tr>
+<th>52</th>
+<td>Jonas Kahnwald</td>
+<td>Cinemática y Dinámica</td>
+</tr>
+<tr>
+<th>53</th>
+<td>Jonas Kahnwald</td>
+<td>Cinemática y Dinámica</td>
+</tr>
+<tr>
+<th>54</th>
+<td>Jonas Kahnwald</td>
+<td>Cálculo Diferencial</td>
+</tr>
+<tr>
+<th>55</th>
+<td>Jonas Kahnwald</td>
+<td>Cálculo Diferencial</td>
+</tr>
+<tr>
+<th>56</th>
+<td>Jonas Kahnwald</td>
+<td>Cálculo Integral</td>
+</tr>
+<tr>
+<th>57</th>
+<td>Jonas Kahnwald</td>
+<td>Cálculo Integral</td>
+</tr>
+<tr>
+<th>58</th>
+<td>Jonas Kahnwald</td>
+<td>Cálculo Multivariado</td>
+</tr>
+<tr>
+<th>59</th>
+<td>Jonas Kahnwald</td>
+<td>Cálculo Multivariado</td>
+</tr>
+<tr>
+<th>60</th>
+<td>Jonas Kahnwald</td>
+<td>Dibujo Mecánico</td>
+</tr>
+<tr>
+<th>61</th>
+<td>Jonas Kahnwald</td>
+<td>Dibujo Mecánico</td>
+</tr>
+<tr>
+<th>62</th>
+<td>Jonas Kahnwald</td>
+<td>Electricidad y Magnetismo</td>
+</tr>
+<tr>
+<th>63</th>
+<td>Jonas Kahnwald</td>
+<td>Electricidad y Magnetismo</td>
+</tr>
+<tr>
+<th>64</th>
+<td>Jonas Kahnwald</td>
+<td>Electricidad y Magnetismo</td>
+</tr>
+<tr>
+<th>65</th>
+<td>Jonas Kahnwald</td>
+<td>Física Térmica y Ondulatoria</td>
+</tr>
+<tr>
+<th>66</th>
+<td>Jonas Kahnwald</td>
+<td>Física Térmica y Ondulatoria</td>
+</tr>
+<tr>
+<th>67</th>
+<td>Jonas Kahnwald</td>
+<td>Física Térmica y Ondulatoria</td>
+</tr>
+<tr>
+<th>68</th>
+<td>Jonas Kahnwald</td>
+<td>Mecánica de Sólidos</td>
+</tr>
+<tr>
+<th>69</th>
+<td>Jonas Kahnwald</td>
+<td>Propiedades de los Materiales</td>
+</tr>
+<tr>
+<th>70</th>
+<td>Jonas Kahnwald</td>
+<td>Propiedades de los Materiales</td>
+</tr>
+<tr>
+<th>71</th>
+<td>Jonas Kahnwald</td>
+<td>Química y Ciencia de Materiales</td>
+</tr>
+<tr>
+<th>72</th>
+<td>Jonas Kahnwald</td>
+<td>Química y Ciencia de Materiales</td>
+</tr>
+<tr>
+<th>73</th>
+<td>Jonas Kahnwald</td>
+<td>Teología</td>
+</tr>
+<tr>
+<th>74</th>
+<td>Jonas Kahnwald</td>
+<td>Termodinámica</td>
+</tr>
+<tr>
+<th>75</th>
+<td>Jonas Kahnwald</td>
+<td>Termodinámica</td>
+</tr>
+<tr>
+<th>76</th>
+<td>Jonas Kahnwald</td>
+<td>Termodinámica</td>
+</tr>
+<tr>
+<th>77</th>
+<td>Jonas Kahnwald</td>
+<td>Álgebra Lineal</td>
+</tr>
+<tr>
+<th>78</th>
+<td>Jonas Kahnwald</td>
+<td>Álgebra Lineal</td>
+</tr>
+<tr>
+<th>79</th>
+<td>Mads Nielsen</td>
+<td>Cálculo Diferencial</td>
+</tr>
+<tr>
+<th>80</th>
+<td>Mads Nielsen</td>
+<td>Cálculo Diferencial</td>
+</tr>
+<tr>
+<th>81</th>
+<td>Mads Nielsen</td>
+<td>Introducción a la Programación</td>
+</tr>
+<tr>
+<th>82</th>
+<td>Mads Nielsen</td>
+<td>Optimización Matemática</td>
+</tr>
+<tr>
+<th>83</th>
+<td>Mads Nielsen</td>
+<td>Optimización Matemática</td>
+</tr>
+<tr>
+<th>84</th>
+<td>Magnus Nielsen</td>
+<td>Cinemática y Dinámica</td>
+</tr>
+<tr>
+<th>85</th>
+<td>Magnus Nielsen</td>
+<td>Cinemática y Dinámica</td>
+</tr>
+<tr>
+<th>86</th>
+<td>Magnus Nielsen</td>
+<td>Cinemática y Dinámica</td>
+</tr>
+<tr>
+<th>87</th>
+<td>Magnus Nielsen</td>
+<td>Cálculo Diferencial</td>
+</tr>
+<tr>
+<th>88</th>
+<td>Magnus Nielsen</td>
+<td>Cálculo Diferencial</td>
+</tr>
+<tr>
+<th>89</th>
+<td>Magnus Nielsen</td>
+<td>Cálculo Integral</td>
+</tr>
+<tr>
+<th>90</th>
+<td>Magnus Nielsen</td>
+<td>Cálculo Integral</td>
+</tr>
+<tr>
+<th>91</th>
+<td>Magnus Nielsen</td>
+<td>Cálculo Multivariado</td>
+</tr>
+<tr>
+<th>92</th>
+<td>Magnus Nielsen</td>
+<td>Cálculo Multivariado</td>
+</tr>
+<tr>
+<th>93</th>
+<td>Magnus Nielsen</td>
+<td>Dibujo Mecánico</td>
+</tr>
+<tr>
+<th>94</th>
+<td>Magnus Nielsen</td>
+<td>Dibujo Mecánico</td>
+</tr>
+<tr>
+<th>95</th>
+<td>Magnus Nielsen</td>
+<td>Electricidad y Magnetismo</td>
+</tr>
+<tr>
+<th>96</th>
+<td>Magnus Nielsen</td>
+<td>Electricidad y Magnetismo</td>
+</tr>
+<tr>
+<th>97</th>
+<td>Magnus Nielsen</td>
+<td>Electricidad y Magnetismo</td>
+</tr>
+<tr>
+<th>98</th>
+<td>Magnus Nielsen</td>
+<td>Física Térmica y Ondulatoria</td>
+</tr>
+<tr>
+<th>99</th>
+<td>Magnus Nielsen</td>
+<td>Física Térmica y Ondulatoria</td>
+</tr>
+<tr>
+<th>100</th>
+<td>Magnus Nielsen</td>
+<td>Física Térmica y Ondulatoria</td>
+</tr>
+<tr>
+<th>101</th>
+<td>Magnus Nielsen</td>
+<td>Mecánica de Fluidos</td>
+</tr>
+<tr>
+<th>102</th>
+<td>Magnus Nielsen</td>
+<td>Mecánica de Sólidos</td>
+</tr>
+<tr>
+<th>103</th>
+<td>Magnus Nielsen</td>
+<td>Propiedades de los Materiales</td>
+</tr>
+<tr>
+<th>104</th>
+<td>Magnus Nielsen</td>
+<td>Propiedades de los Materiales</td>
+</tr>
+<tr>
+<th>105</th>
+<td>Magnus Nielsen</td>
+<td>Química y Ciencia de Materiales</td>
+</tr>
+<tr>
+<th>106</th>
+<td>Magnus Nielsen</td>
+<td>Química y Ciencia de Materiales</td>
+</tr>
+<tr>
+<th>107</th>
+<td>Magnus Nielsen</td>
+<td>Teología</td>
+</tr>
+<tr>
+<th>108</th>
+<td>Magnus Nielsen</td>
+<td>Termodinámica</td>
+</tr>
+<tr>
+<th>109</th>
+<td>Magnus Nielsen</td>
+<td>Termodinámica</td>
+</tr>
+<tr>
+<th>110</th>
+<td>Magnus Nielsen</td>
+<td>Termodinámica</td>
+</tr>
+<tr>
+<th>111</th>
+<td>Magnus Nielsen</td>
+<td>Álgebra Lineal</td>
+</tr>
+<tr>
+<th>112</th>
+<td>Magnus Nielsen</td>
+<td>Álgebra Lineal</td>
+</tr>
+<tr>
+<th>113</th>
+<td>Martha Nielsen</td>
+<td>Cinemática y Dinámica</td>
+</tr>
+<tr>
+<th>114</th>
+<td>Martha Nielsen</td>
+<td>Cinemática y Dinámica</td>
+</tr>
+<tr>
+<th>115</th>
+<td>Martha Nielsen</td>
+<td>Cinemática y Dinámica</td>
+</tr>
+<tr>
+<th>116</th>
+<td>Martha Nielsen</td>
+<td>Cálculo Diferencial</td>
+</tr>
+<tr>
+<th>117</th>
+<td>Martha Nielsen</td>
+<td>Cálculo Diferencial</td>
+</tr>
+<tr>
+<th>118</th>
+<td>Martha Nielsen</td>
+<td>Cálculo Integral</td>
+</tr>
+<tr>
+<th>119</th>
+<td>Martha Nielsen</td>
+<td>Cálculo Integral</td>
+</tr>
+<tr>
+<th>120</th>
+<td>Martha Nielsen</td>
+<td>Cálculo Multivariado</td>
+</tr>
+<tr>
+<th>121</th>
+<td>Martha Nielsen</td>
+<td>Cálculo Multivariado</td>
+</tr>
+<tr>
+<th>122</th>
+<td>Martha Nielsen</td>
+<td>Física Térmica y Ondulatoria</td>
+</tr>
+<tr>
+<th>123</th>
+<td>Martha Nielsen</td>
+<td>Física Térmica y Ondulatoria</td>
+</tr>
+<tr>
+<th>124</th>
+<td>Martha Nielsen</td>
+<td>Física Térmica y Ondulatoria</td>
+</tr>
+<tr>
+<th>125</th>
+<td>Martha Nielsen</td>
+<td>Teología</td>
+</tr>
+<tr>
+<th>126</th>
+<td>Martha Nielsen</td>
+<td>Teoría de Probabilidades</td>
+</tr>
+<tr>
+<th>127</th>
+<td>Martha Nielsen</td>
+<td>Teoría de Probabilidades</td>
+</tr>
+<tr>
+<th>128</th>
+<td>Martha Nielsen</td>
+<td>Álgebra Lineal</td>
+</tr>
+<tr>
+<th>129</th>
+<td>Martha Nielsen</td>
+<td>Álgebra Lineal</td>
+</tr>
+<tr>
+<th>130</th>
+<td>Martha Nielsen</td>
+<td>Álgebra Moderna</td>
+</tr>
+<tr>
+<th>131</th>
+<td>Martha Nielsen</td>
+<td>Álgebra Moderna</td>
+</tr>
+<tr>
+<th>132</th>
+<td>Olive Stone</td>
+<td>Cinemática y Dinámica</td>
+</tr>
+<tr>
+<th>133</th>
+<td>Olive Stone</td>
+<td>Cinemática y Dinámica</td>
+</tr>
+<tr>
+<th>134</th>
+<td>Olive Stone</td>
+<td>Cinemática y Dinámica</td>
+</tr>
+<tr>
+<th>135</th>
+<td>Olive Stone</td>
+<td>Cálculo Diferencial</td>
+</tr>
+<tr>
+<th>136</th>
+<td>Olive Stone</td>
+<td>Cálculo Diferencial</td>
+</tr>
+<tr>
+<th>137</th>
+<td>Olive Stone</td>
+<td>Cálculo Integral</td>
+</tr>
+<tr>
+<th>138</th>
+<td>Olive Stone</td>
+<td>Cálculo Integral</td>
+</tr>
+<tr>
+<th>139</th>
+<td>Olive Stone</td>
+<td>Cálculo Multivariado</td>
+</tr>
+<tr>
+<th>140</th>
+<td>Olive Stone</td>
+<td>Cálculo Multivariado</td>
+</tr>
+<tr>
+<th>141</th>
+<td>Olive Stone</td>
+<td>Física Térmica y Ondulatoria</td>
+</tr>
+<tr>
+<th>142</th>
+<td>Olive Stone</td>
+<td>Física Térmica y Ondulatoria</td>
+</tr>
+<tr>
+<th>143</th>
+<td>Olive Stone</td>
+<td>Física Térmica y Ondulatoria</td>
+</tr>
+<tr>
+<th>144</th>
+<td>Olive Stone</td>
+<td>Teología</td>
+</tr>
+<tr>
+<th>145</th>
+<td>Olive Stone</td>
+<td>Teoría de Probabilidades</td>
+</tr>
+<tr>
+<th>146</th>
+<td>Olive Stone</td>
+<td>Teoría de Probabilidades</td>
+</tr>
+<tr>
+<th>147</th>
+<td>Olive Stone</td>
+<td>Álgebra Lineal</td>
+</tr>
+<tr>
+<th>148</th>
+<td>Olive Stone</td>
+<td>Álgebra Lineal</td>
+</tr>
+<tr>
+<th>149</th>
+<td>Olive Stone</td>
+<td>Álgebra Moderna</td>
+</tr>
+<tr>
+<th>150</th>
+<td>Olive Stone</td>
+<td>Álgebra Moderna</td>
+</tr>
+</tbody>
+</table></div><div class="cap">151 filas × 2 columnas</div></div></div>
+<section class="cell md interp"><p><strong>Interpretación:</strong> Hay 151 inscripciones. El mismo curso aparece varias veces por estudiante (p. ej. 'Cinemática y Dinámica' ×3 para Bartosz) porque cada fila es una sección distinta (Lunes, Miércoles, Viernes). Para listar cursos únicos hay que usar DISTINCT.</p>
+</section>
+<section class="cell md"><h3 id="c5-cursos-programados-con-salon-y-edificio">C5. Cursos programados con salón y edificio</h3>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">sql</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">SELECT cc.ID_CALENDARIO, cu.NOMBRE AS curso, s.NOMBRE AS salon, e.NOMBRE AS edificio</span>
+<span class="s2">FROM CALENDARIO_CURSOS cc</span>
+<span class="s2">INNER JOIN CURSOS cu ON cu.ID_CURSO = cc.ID_CURSO</span>
+<span class="s2">INNER JOIN SALONES s ON s.ID_SALON = cc.ID_SALON</span>
+<span class="s2">INNER JOIN EDIFICIOS e ON e.ID_EDIFICIO = s.ID_EDIFICIO</span>
+<span class="s2">ORDER BY cc.ID_CALENDARIO;</span>
+<span class="s2">"""</span>
+<span class="n">q</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><div class="table-wrap"><table class="df">
+<thead>
+<tr>
+<th></th>
+<th class="num">ID_CALENDARIO</th>
+<th>curso</th>
+<th class="num">salon</th>
+<th>edificio</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td class="num">1</td>
+<td>Introducción a la Programación</td>
+<td class="num">1.4</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>1</th>
+<td class="num">2</td>
+<td>Introducción a la Programación</td>
+<td class="num">1.4</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>2</th>
+<td class="num">3</td>
+<td>Estructuras de Datos</td>
+<td class="num">3.4</td>
+<td>Almendros</td>
+</tr>
+<tr>
+<th>3</th>
+<td class="num">4</td>
+<td>Estructuras de Datos</td>
+<td class="num">3.4</td>
+<td>Almendros</td>
+</tr>
+<tr>
+<th>4</th>
+<td class="num">5</td>
+<td>Técnicas y Prácticas de Programación</td>
+<td class="num">3.4</td>
+<td>Almendros</td>
+</tr>
+<tr>
+<th>5</th>
+<td class="num">6</td>
+<td>Técnicas y Prácticas de Programación</td>
+<td class="num">3.4</td>
+<td>Almendros</td>
+</tr>
+<tr>
+<th>6</th>
+<td class="num">7</td>
+<td>Desarrollo de Videouegos</td>
+<td class="num">3.2</td>
+<td>Palmas</td>
+</tr>
+<tr>
+<th>7</th>
+<td class="num">8</td>
+<td>Desarrollo de Videouegos</td>
+<td class="num">3.2</td>
+<td>Palmas</td>
+</tr>
+<tr>
+<th>8</th>
+<td class="num">9</td>
+<td>Lógica Digital y Lenguaje de Máquina</td>
+<td class="num">1.2</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>9</th>
+<td class="num">10</td>
+<td>Lógica Digital y Lenguaje de Máquina</td>
+<td class="num">1.2</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>10</th>
+<td class="num">11</td>
+<td>Arquitectura del Computador</td>
+<td class="num">2.6</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>11</th>
+<td class="num">12</td>
+<td>Arquitectura del Computador</td>
+<td class="num">2.6</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>12</th>
+<td class="num">13</td>
+<td>Cálculo Diferencial</td>
+<td class="num">2.5</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>13</th>
+<td class="num">14</td>
+<td>Cálculo Diferencial</td>
+<td class="num">2.5</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>14</th>
+<td class="num">15</td>
+<td>Álgebra Lineal</td>
+<td class="num">3.1</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>15</th>
+<td class="num">16</td>
+<td>Álgebra Lineal</td>
+<td class="num">3.1</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>16</th>
+<td class="num">17</td>
+<td>Álgebra Moderna</td>
+<td class="num">3.2</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>17</th>
+<td class="num">18</td>
+<td>Álgebra Moderna</td>
+<td class="num">3.2</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>18</th>
+<td class="num">19</td>
+<td>Teoría de Probabilidades</td>
+<td class="num">1.1</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>19</th>
+<td class="num">20</td>
+<td>Teoría de Probabilidades</td>
+<td class="num">1.1</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>20</th>
+<td class="num">21</td>
+<td>Estadítica Aplicada</td>
+<td class="num">1.2</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>21</th>
+<td class="num">22</td>
+<td>Ética</td>
+<td class="num">3.1</td>
+<td>Almendros</td>
+</tr>
+<tr>
+<th>22</th>
+<td class="num">23</td>
+<td>Cálculo Integral</td>
+<td class="num">3.3</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>23</th>
+<td class="num">24</td>
+<td>Cálculo Integral</td>
+<td class="num">3.3</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>24</th>
+<td class="num">25</td>
+<td>Cálculo Multivariado</td>
+<td class="num">2.1</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>25</th>
+<td class="num">26</td>
+<td>Cálculo Multivariado</td>
+<td class="num">2.1</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>26</th>
+<td class="num">27</td>
+<td>Optimización Matemática</td>
+<td class="num">2.2</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>27</th>
+<td class="num">28</td>
+<td>Optimización Matemática</td>
+<td class="num">2.2</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>28</th>
+<td class="num">29</td>
+<td>Ética</td>
+<td class="num">3.7</td>
+<td>Almendros</td>
+</tr>
+<tr>
+<th>29</th>
+<td class="num">30</td>
+<td>Práctica Estudiantil</td>
+<td class="num">1.6</td>
+<td>El Samán</td>
+</tr>
+<tr>
+<th>30</th>
+<td class="num">31</td>
+<td>Teología</td>
+<td class="num">1.8</td>
+<td>El Samán</td>
+</tr>
+<tr>
+<th>31</th>
+<td class="num">32</td>
+<td>Filosofía Antigua</td>
+<td class="num">3.6</td>
+<td>Almendros</td>
+</tr>
+<tr>
+<th>32</th>
+<td class="num">33</td>
+<td>Antropología Filosófica</td>
+<td class="num">3.6</td>
+<td>Almendros</td>
+</tr>
+<tr>
+<th>33</th>
+<td class="num">34</td>
+<td>Filosofía de la Ciencia</td>
+<td class="num">2.3</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>34</th>
+<td class="num">35</td>
+<td>Cinemática y Dinámica</td>
+<td class="num">2.2</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>35</th>
+<td class="num">36</td>
+<td>Cinemática y Dinámica</td>
+<td class="num">2.2</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>36</th>
+<td class="num">37</td>
+<td>Cinemática y Dinámica</td>
+<td class="num">2.2</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>37</th>
+<td class="num">38</td>
+<td>Física Térmica y Ondulatoria</td>
+<td class="num">2.2</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>38</th>
+<td class="num">39</td>
+<td>Física Térmica y Ondulatoria</td>
+<td class="num">2.2</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>39</th>
+<td class="num">40</td>
+<td>Física Térmica y Ondulatoria</td>
+<td class="num">2.2</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>40</th>
+<td class="num">41</td>
+<td>Termodinámica</td>
+<td class="num">1.3</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>41</th>
+<td class="num">42</td>
+<td>Termodinámica</td>
+<td class="num">1.3</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>42</th>
+<td class="num">43</td>
+<td>Termodinámica</td>
+<td class="num">1.3</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>43</th>
+<td class="num">44</td>
+<td>Electricidad y Magnetismo</td>
+<td class="num">1.5</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>44</th>
+<td class="num">45</td>
+<td>Electricidad y Magnetismo</td>
+<td class="num">1.5</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>45</th>
+<td class="num">46</td>
+<td>Electricidad y Magnetismo</td>
+<td class="num">1.5</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>46</th>
+<td class="num">47</td>
+<td>Mecánica de Sólidos</td>
+<td class="num">2.3</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>47</th>
+<td class="num">48</td>
+<td>Mecánica de Fluidos</td>
+<td class="num">2.3</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>48</th>
+<td class="num">49</td>
+<td>Transferencia de Calor</td>
+<td class="num">1.5</td>
+<td>El Samán</td>
+</tr>
+<tr>
+<th>49</th>
+<td class="num">50</td>
+<td>Transferencia de Calor</td>
+<td class="num">1.5</td>
+<td>El Samán</td>
+</tr>
+<tr>
+<th>50</th>
+<td class="num">51</td>
+<td>Máquinas Térmicas e Hidráulicas</td>
+<td class="num">1.5</td>
+<td>El Samán</td>
+</tr>
+<tr>
+<th>51</th>
+<td class="num">52</td>
+<td>Máquinas Térmicas e Hidráulicas</td>
+<td class="num">1.5</td>
+<td>El Samán</td>
+</tr>
+<tr>
+<th>52</th>
+<td class="num">53</td>
+<td>Programación Paralela</td>
+<td class="num">3.3</td>
+<td>Palmas</td>
+</tr>
+<tr>
+<th>53</th>
+<td class="num">54</td>
+<td>Programación Paralela</td>
+<td class="num">3.3</td>
+<td>Palmas</td>
+</tr>
+<tr>
+<th>54</th>
+<td class="num">55</td>
+<td>Optimización Matemática</td>
+<td class="num">1.3</td>
+<td>El Samán</td>
+</tr>
+<tr>
+<th>55</th>
+<td class="num">56</td>
+<td>Optimización Matemática</td>
+<td class="num">1.3</td>
+<td>El Samán</td>
+</tr>
+<tr>
+<th>56</th>
+<td class="num">57</td>
+<td>Dibujo Mecánico</td>
+<td class="num">1.3</td>
+<td>El Samán</td>
+</tr>
+<tr>
+<th>57</th>
+<td class="num">58</td>
+<td>Dibujo Mecánico</td>
+<td class="num">1.3</td>
+<td>El Samán</td>
+</tr>
+<tr>
+<th>58</th>
+<td class="num">59</td>
+<td>Química y Ciencia de Materiales</td>
+<td class="num">3.6</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>59</th>
+<td class="num">60</td>
+<td>Química y Ciencia de Materiales</td>
+<td class="num">3.6</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>60</th>
+<td class="num">61</td>
+<td>Propiedades de los Materiales</td>
+<td class="num">3.5</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>61</th>
+<td class="num">62</td>
+<td>Propiedades de los Materiales</td>
+<td class="num">3.5</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>62</th>
+<td class="num">63</td>
+<td>Diseño Mecánico</td>
+<td class="num">3.4</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>63</th>
+<td class="num">64</td>
+<td>Diseño Mecánico</td>
+<td class="num">3.4</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>64</th>
+<td class="num">65</td>
+<td>Máquinas Térmicas e Hidráulicas</td>
+<td class="num">2.1</td>
+<td>Cedro Rosado</td>
+</tr>
+<tr>
+<th>65</th>
+<td class="num">66</td>
+<td>Álgebra Moderna</td>
+<td class="num">3.3</td>
+<td>Almendros</td>
+</tr>
+<tr>
+<th>66</th>
+<td class="num">67</td>
+<td>Aprendizaje Automático</td>
+<td class="num">1.1</td>
+<td>El Samán</td>
+</tr>
+<tr>
+<th>67</th>
+<td class="num">68</td>
+<td>Aprendizaje Automático</td>
+<td class="num">1.1</td>
+<td>El Samán</td>
+</tr>
+<tr>
+<th>68</th>
+<td class="num">69</td>
+<td>Introducción a la Seguridad Informática</td>
+<td class="num">3.5</td>
+<td>Palmas</td>
+</tr>
+<tr>
+<th>69</th>
+<td class="num">70</td>
+<td>Introducción a la Seguridad Informática</td>
+<td class="num">3.5</td>
+<td>Palmas</td>
+</tr>
+<tr>
+<th>70</th>
+<td class="num">71</td>
+<td>Sistemas Inteligentes</td>
+<td class="num">2.2</td>
+<td>Cedro Rosado</td>
+</tr>
+<tr>
+<th>71</th>
+<td class="num">72</td>
+<td>Sistemas Inteligentes</td>
+<td class="num">2.2</td>
+<td>Cedro Rosado</td>
+</tr>
+</tbody>
+</table></div><div class="cap">72 filas × 4 columnas</div></div></div>
+<section class="cell md interp"><p><strong>Interpretación:</strong> 72 secciones programadas, con su salón y edificio. Sirve para validar que cada sección tenga espacio físico asignado: no hay NULLs.</p>
+</section>
+<section class="cell md"><h3 id="c6-cartelera-del-dia-martes">C6. Cartelera del día Martes</h3>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">sql</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">SELECT cu.NOMBRE AS curso, cc.HORA_INICIO, cc.HORA_FIN,</span>
+<span class="s2">       s.NOMBRE AS salon, e.NOMBRE AS edificio,</span>
+<span class="s2">       p.NOMBRE || ' ' || p.APELLIDO AS profesor</span>
+<span class="s2">FROM CALENDARIO_CURSOS cc</span>
+<span class="s2">INNER JOIN CURSOS cu    ON cu.ID_CURSO = cc.ID_CURSO</span>
+<span class="s2">INNER JOIN SALONES s    ON s.ID_SALON = cc.ID_SALON</span>
+<span class="s2">INNER JOIN EDIFICIOS e  ON e.ID_EDIFICIO = s.ID_EDIFICIO</span>
+<span class="s2">INNER JOIN USUARIOS p   ON p.ID_USUARIO = cc.ID_PROFESOR</span>
+<span class="s2">WHERE cc.DIA = 'Martes'</span>
+<span class="s2">ORDER BY (CAST(substr(cc.HORA_INICIO,1,2) AS INTEGER) % 12 * 60 + CAST(substr(cc.HORA_INICIO,4,2) AS INTEGER)</span>
+<span class="s2">       + CASE WHEN UPPER(cc.HORA_INICIO) LIKE '%PM' THEN 720 ELSE 0 END);</span>
+<span class="s2">"""</span>
+<span class="n">q</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><div class="table-wrap"><table class="df">
+<thead>
+<tr>
+<th></th>
+<th>curso</th>
+<th>HORA_INICIO</th>
+<th>HORA_FIN</th>
+<th class="num">salon</th>
+<th>edificio</th>
+<th>profesor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>Introducción a la Programación</td>
+<td>08:00 AM</td>
+<td>10:00 AM</td>
+<td class="num">1.4</td>
+<td>El Lago</td>
+<td>Ben Stone</td>
+</tr>
+<tr>
+<th>1</th>
+<td>Cálculo Diferencial</td>
+<td>08:00 AM</td>
+<td>10:00 AM</td>
+<td class="num">2.5</td>
+<td>El Lago</td>
+<td>Grace Stone</td>
+</tr>
+<tr>
+<th>2</th>
+<td>Antropología Filosófica</td>
+<td>08:00 AM</td>
+<td>10:00 AM</td>
+<td class="num">3.6</td>
+<td>Almendros</td>
+<td>Zeke Landon</td>
+</tr>
+<tr>
+<th>3</th>
+<td>Programación Paralela</td>
+<td>08:00 AM</td>
+<td>10:00 AM</td>
+<td class="num">3.3</td>
+<td>Palmas</td>
+<td>Ulrich Nielsen</td>
+</tr>
+<tr>
+<th>4</th>
+<td>Química y Ciencia de Materiales</td>
+<td>08:00 AM</td>
+<td>10:00 AM</td>
+<td class="num">3.6</td>
+<td>El Lago</td>
+<td>Claudia Tiedemann</td>
+</tr>
+<tr>
+<th>5</th>
+<td>Mecánica de Sólidos</td>
+<td>09:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">2.3</td>
+<td>El Lago</td>
+<td>Saanvi Bahl</td>
+</tr>
+<tr>
+<th>6</th>
+<td>Estructuras de Datos</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">3.4</td>
+<td>Almendros</td>
+<td>Ben Stone</td>
+</tr>
+<tr>
+<th>7</th>
+<td>Álgebra Lineal</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">3.1</td>
+<td>El Lago</td>
+<td>Grace Stone</td>
+</tr>
+<tr>
+<th>8</th>
+<td>Cálculo Integral</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">3.3</td>
+<td>El Lago</td>
+<td>Jared Vásquez</td>
+</tr>
+<tr>
+<th>9</th>
+<td>Desarrollo de Videouegos</td>
+<td>02:00 PM</td>
+<td>05:00 PM</td>
+<td class="num">3.2</td>
+<td>Palmas</td>
+<td>Ben Stone</td>
+</tr>
+<tr>
+<th>10</th>
+<td>Cálculo Multivariado</td>
+<td>02:00 PM</td>
+<td>04:00 PM</td>
+<td class="num">2.1</td>
+<td>El Lago</td>
+<td>Jared Vásquez</td>
+</tr>
+<tr>
+<th>11</th>
+<td>Transferencia de Calor</td>
+<td>02:00 PM</td>
+<td>04:00PM</td>
+<td class="num">1.5</td>
+<td>El Samán</td>
+<td>Saanvi Bahl</td>
+</tr>
+<tr>
+<th>12</th>
+<td>Propiedades de los Materiales</td>
+<td>02:00 PM</td>
+<td>04:00 PM</td>
+<td class="num">3.5</td>
+<td>El Lago</td>
+<td>Claudia Tiedemann</td>
+</tr>
+<tr>
+<th>13</th>
+<td>Máquinas Térmicas e Hidráulicas</td>
+<td>04:00 PM</td>
+<td>06:00 PM</td>
+<td class="num">1.5</td>
+<td>El Samán</td>
+<td>Saanvi Bahl</td>
+</tr>
+<tr>
+<th>14</th>
+<td>Diseño Mecánico</td>
+<td>04:00 PM</td>
+<td>06:00 PM</td>
+<td class="num">3.4</td>
+<td>El Lago</td>
+<td>Claudia Tiedemann</td>
+</tr>
+<tr>
+<th>15</th>
+<td>Aprendizaje Automático</td>
+<td>04:00 PM</td>
+<td>06:00 PM</td>
+<td class="num">1.1</td>
+<td>El Samán</td>
+<td>Robert Vance</td>
+</tr>
+</tbody>
+</table></div><div class="cap">16 filas × 6 columnas</div></div></div>
+<section class="cell md interp"><p><strong>Interpretación:</strong> El martes hay 16 secciones. La franja de las 08:00 AM concentra la mayor carga, con 5 secciones simultáneas. Una de las horas tiene el formato inconsistente '04:00PM' (sin espacio), un problema de calidad de datos.</p>
+</section>
+<section class="cell md"><h3 id="c7-horario-completo-del-estudiante-id-17-franziska-doppler">C7. Horario completo del estudiante ID 17 (Franziska Doppler)</h3>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">sql</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">SELECT cc.DIA, cc.HORA_INICIO, cc.HORA_FIN, cu.NOMBRE AS curso,</span>
+<span class="s2">       s.NOMBRE AS salon, e.NOMBRE AS edificio</span>
+<span class="s2">FROM CURSOS_ESTUDIANTES ce</span>
+<span class="s2">INNER JOIN CALENDARIO_CURSOS cc ON cc.ID_CALENDARIO = ce.ID_CALENDARIO</span>
+<span class="s2">INNER JOIN CURSOS cu   ON cu.ID_CURSO = cc.ID_CURSO</span>
+<span class="s2">INNER JOIN SALONES s   ON s.ID_SALON = cc.ID_SALON</span>
+<span class="s2">INNER JOIN EDIFICIOS e ON e.ID_EDIFICIO = s.ID_EDIFICIO</span>
+<span class="s2">WHERE ce.ID_USUARIO = 17</span>
+<span class="s2">ORDER BY CASE cc.DIA WHEN 'Lunes' THEN 1 WHEN 'Martes' THEN 2 WHEN 'Miércoles' THEN 3</span>
+<span class="s2">                     WHEN 'Jueves' THEN 4 WHEN 'Viernes' THEN 5 END,</span>
+<span class="s2">         (CAST(substr(cc.HORA_INICIO,1,2) AS INTEGER) % 12 * 60 + CAST(substr(cc.HORA_INICIO,4,2) AS INTEGER)</span>
+<span class="s2">       + CASE WHEN UPPER(cc.HORA_INICIO) LIKE '%PM' THEN 720 ELSE 0 END);</span>
+<span class="s2">"""</span>
+<span class="n">q</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><div class="table-wrap"><table class="df">
+<thead>
+<tr>
+<th></th>
+<th>DIA</th>
+<th>HORA_INICIO</th>
+<th>HORA_FIN</th>
+<th>curso</th>
+<th class="num">salon</th>
+<th>edificio</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>Lunes</td>
+<td>02:00 PM</td>
+<td>04:00 PM</td>
+<td>Cinemática y Dinámica</td>
+<td class="num">2.2</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>1</th>
+<td>Lunes</td>
+<td>04:00 PM</td>
+<td>06:00 PM</td>
+<td>Técnicas y Prácticas de Programación</td>
+<td class="num">3.4</td>
+<td>Almendros</td>
+</tr>
+<tr>
+<th>2</th>
+<td>Lunes</td>
+<td>04:00 PM</td>
+<td>06:00 PM</td>
+<td>Arquitectura del Computador</td>
+<td class="num">2.6</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>3</th>
+<td>Martes</td>
+<td>08:00 AM</td>
+<td>10:00 AM</td>
+<td>Introducción a la Programación</td>
+<td class="num">1.4</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>4</th>
+<td>Martes</td>
+<td>08:00 AM</td>
+<td>10:00 AM</td>
+<td>Cálculo Diferencial</td>
+<td class="num">2.5</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>5</th>
+<td>Martes</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td>Estructuras de Datos</td>
+<td class="num">3.4</td>
+<td>Almendros</td>
+</tr>
+<tr>
+<th>6</th>
+<td>Martes</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td>Álgebra Lineal</td>
+<td class="num">3.1</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>7</th>
+<td>Martes</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td>Cálculo Integral</td>
+<td class="num">3.3</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>8</th>
+<td>Martes</td>
+<td>02:00 PM</td>
+<td>04:00 PM</td>
+<td>Cálculo Multivariado</td>
+<td class="num">2.1</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>9</th>
+<td>Miércoles</td>
+<td>02:00 PM</td>
+<td>04:00 PM</td>
+<td>Lógica Digital y Lenguaje de Máquina</td>
+<td class="num">1.2</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>10</th>
+<td>Miércoles</td>
+<td>02:00 PM</td>
+<td>04:00 PM</td>
+<td>Cinemática y Dinámica</td>
+<td class="num">2.2</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>11</th>
+<td>Miércoles</td>
+<td>04:00 PM</td>
+<td>06:00 PM</td>
+<td>Técnicas y Prácticas de Programación</td>
+<td class="num">3.4</td>
+<td>Almendros</td>
+</tr>
+<tr>
+<th>12</th>
+<td>Jueves</td>
+<td>08:00 AM</td>
+<td>10:00 AM</td>
+<td>Introducción a la Programación</td>
+<td class="num">1.4</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>13</th>
+<td>Jueves</td>
+<td>08:00 AM</td>
+<td>10:00 AM</td>
+<td>Cálculo Diferencial</td>
+<td class="num">2.5</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>14</th>
+<td>Jueves</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td>Estructuras de Datos</td>
+<td class="num">3.4</td>
+<td>Almendros</td>
+</tr>
+<tr>
+<th>15</th>
+<td>Jueves</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td>Álgebra Lineal</td>
+<td class="num">3.1</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>16</th>
+<td>Jueves</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td>Cálculo Integral</td>
+<td class="num">3.3</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>17</th>
+<td>Jueves</td>
+<td>02:00 PM</td>
+<td>04:00 PM</td>
+<td>Cálculo Multivariado</td>
+<td class="num">2.1</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>18</th>
+<td>Viernes</td>
+<td>02:00 PM</td>
+<td>04:00 PM</td>
+<td>Lógica Digital y Lenguaje de Máquina</td>
+<td class="num">1.2</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>19</th>
+<td>Viernes</td>
+<td>02:00 PM</td>
+<td>04:00 PM</td>
+<td>Cinemática y Dinámica</td>
+<td class="num">2.2</td>
+<td>El Lago</td>
+</tr>
+<tr>
+<th>20</th>
+<td>Viernes</td>
+<td>04:00 PM</td>
+<td>06:00 PM</td>
+<td>Arquitectura del Computador</td>
+<td class="num">2.6</td>
+<td>El Lago</td>
+</tr>
+</tbody>
+</table></div><div class="cap">21 filas × 6 columnas</div></div></div>
+<section class="cell md interp"><p><strong>Interpretación:</strong> Franziska Doppler tiene 21 sesiones semanales, con varias en el mismo bloque horario (p. ej. Martes 08:00 AM: Introducción a la Programación y Cálculo Diferencial). Es un indicio de cruces que se confirma en el Reto 2.</p>
+</section>
+<section class="cell md"><h3 id="c8-profesores-y-cantidad-de-secciones-ofertadas-incluye-los-">C8. Profesores y cantidad de secciones ofertadas (incluye los que no dictan nada)</h3>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">sql</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">SELECT p.ID_USUARIO, p.NOMBRE || ' ' || p.APELLIDO AS profesor,</span>
+<span class="s2">       COUNT(cc.ID_CALENDARIO) AS secciones_ofertadas</span>
+<span class="s2">FROM USUARIOS p</span>
+<span class="s2">LEFT JOIN CALENDARIO_CURSOS cc ON cc.ID_PROFESOR = p.ID_USUARIO</span>
+<span class="s2">WHERE p.ID_ROL = 2</span>
+<span class="s2">GROUP BY p.ID_USUARIO, profesor</span>
+<span class="s2">ORDER BY secciones_ofertadas DESC;</span>
+<span class="s2">"""</span>
+<span class="n">q</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><div class="table-wrap"><table class="df">
+<thead>
+<tr>
+<th></th>
+<th class="num">ID_USUARIO</th>
+<th>profesor</th>
+<th class="num">secciones_ofertadas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td class="num">6</td>
+<td>Saanvi Bahl</td>
+<td class="num">18</td>
+</tr>
+<tr>
+<th>1</th>
+<td class="num">1</td>
+<td>Ben Stone</td>
+<td class="num">8</td>
+</tr>
+<tr>
+<th>2</th>
+<td class="num">2</td>
+<td>Grace Stone</td>
+<td class="num">8</td>
+</tr>
+<tr>
+<th>3</th>
+<td class="num">4</td>
+<td>Jared Vásquez</td>
+<td class="num">8</td>
+</tr>
+<tr>
+<th>4</th>
+<td class="num">9</td>
+<td>Claudia Tiedemann</td>
+<td class="num">8</td>
+</tr>
+<tr>
+<th>5</th>
+<td class="num">3</td>
+<td>Mikaela Stone</td>
+<td class="num">6</td>
+</tr>
+<tr>
+<th>6</th>
+<td class="num">10</td>
+<td>Robert Vance</td>
+<td class="num">6</td>
+</tr>
+<tr>
+<th>7</th>
+<td class="num">5</td>
+<td>Zeke Landon</td>
+<td class="num">4</td>
+</tr>
+<tr>
+<th>8</th>
+<td class="num">7</td>
+<td>Ulrich Nielsen</td>
+<td class="num">4</td>
+</tr>
+<tr>
+<th>9</th>
+<td class="num">8</td>
+<td>Charlotte Doppler</td>
+<td class="num">2</td>
+</tr>
+</tbody>
+</table></div><div class="cap">10 filas × 3 columnas</div></div></div>
+<section class="cell md interp"><p><strong>Interpretación:</strong> Los 10 profesores tienen al menos una sección. Saanvi Bahl concentra 18 de las 72 (25 %), mientras Charlotte Doppler solo tiene 2: la carga docente está muy desbalanceada.</p>
+</section>
+<section class="cell md"><h3 id="c9-profesores-con-los-cursos-ofertados-que-orientan">C9. Profesores con los cursos ofertados que orientan</h3>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">sql</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">SELECT DISTINCT p.NOMBRE || ' ' || p.APELLIDO AS profesor, cu.NOMBRE AS curso</span>
+<span class="s2">FROM CALENDARIO_CURSOS cc</span>
+<span class="s2">INNER JOIN USUARIOS p ON p.ID_USUARIO = cc.ID_PROFESOR</span>
+<span class="s2">INNER JOIN CURSOS cu  ON cu.ID_CURSO = cc.ID_CURSO</span>
+<span class="s2">ORDER BY profesor, curso;</span>
+<span class="s2">"""</span>
+<span class="n">q</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><div class="table-wrap"><table class="df">
+<thead>
+<tr>
+<th></th>
+<th>profesor</th>
+<th>curso</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>Ben Stone</td>
+<td>Desarrollo de Videouegos</td>
+</tr>
+<tr>
+<th>1</th>
+<td>Ben Stone</td>
+<td>Estructuras de Datos</td>
+</tr>
+<tr>
+<th>2</th>
+<td>Ben Stone</td>
+<td>Introducción a la Programación</td>
+</tr>
+<tr>
+<th>3</th>
+<td>Ben Stone</td>
+<td>Técnicas y Prácticas de Programación</td>
+</tr>
+<tr>
+<th>4</th>
+<td>Charlotte Doppler</td>
+<td>Dibujo Mecánico</td>
+</tr>
+<tr>
+<th>5</th>
+<td>Claudia Tiedemann</td>
+<td>Diseño Mecánico</td>
+</tr>
+<tr>
+<th>6</th>
+<td>Claudia Tiedemann</td>
+<td>Máquinas Térmicas e Hidráulicas</td>
+</tr>
+<tr>
+<th>7</th>
+<td>Claudia Tiedemann</td>
+<td>Propiedades de los Materiales</td>
+</tr>
+<tr>
+<th>8</th>
+<td>Claudia Tiedemann</td>
+<td>Química y Ciencia de Materiales</td>
+</tr>
+<tr>
+<th>9</th>
+<td>Claudia Tiedemann</td>
+<td>Álgebra Moderna</td>
+</tr>
+<tr>
+<th>10</th>
+<td>Grace Stone</td>
+<td>Arquitectura del Computador</td>
+</tr>
+<tr>
+<th>11</th>
+<td>Grace Stone</td>
+<td>Cálculo Diferencial</td>
+</tr>
+<tr>
+<th>12</th>
+<td>Grace Stone</td>
+<td>Lógica Digital y Lenguaje de Máquina</td>
+</tr>
+<tr>
+<th>13</th>
+<td>Grace Stone</td>
+<td>Álgebra Lineal</td>
+</tr>
+<tr>
+<th>14</th>
+<td>Jared Vásquez</td>
+<td>Cálculo Integral</td>
+</tr>
+<tr>
+<th>15</th>
+<td>Jared Vásquez</td>
+<td>Cálculo Multivariado</td>
+</tr>
+<tr>
+<th>16</th>
+<td>Jared Vásquez</td>
+<td>Optimización Matemática</td>
+</tr>
+<tr>
+<th>17</th>
+<td>Jared Vásquez</td>
+<td>Práctica Estudiantil</td>
+</tr>
+<tr>
+<th>18</th>
+<td>Jared Vásquez</td>
+<td>Ética</td>
+</tr>
+<tr>
+<th>19</th>
+<td>Mikaela Stone</td>
+<td>Estadítica Aplicada</td>
+</tr>
+<tr>
+<th>20</th>
+<td>Mikaela Stone</td>
+<td>Teoría de Probabilidades</td>
+</tr>
+<tr>
+<th>21</th>
+<td>Mikaela Stone</td>
+<td>Álgebra Moderna</td>
+</tr>
+<tr>
+<th>22</th>
+<td>Mikaela Stone</td>
+<td>Ética</td>
+</tr>
+<tr>
+<th>23</th>
+<td>Robert Vance</td>
+<td>Aprendizaje Automático</td>
+</tr>
+<tr>
+<th>24</th>
+<td>Robert Vance</td>
+<td>Introducción a la Seguridad Informática</td>
+</tr>
+<tr>
+<th>25</th>
+<td>Robert Vance</td>
+<td>Sistemas Inteligentes</td>
+</tr>
+<tr>
+<th>26</th>
+<td>Saanvi Bahl</td>
+<td>Cinemática y Dinámica</td>
+</tr>
+<tr>
+<th>27</th>
+<td>Saanvi Bahl</td>
+<td>Electricidad y Magnetismo</td>
+</tr>
+<tr>
+<th>28</th>
+<td>Saanvi Bahl</td>
+<td>Física Térmica y Ondulatoria</td>
+</tr>
+<tr>
+<th>29</th>
+<td>Saanvi Bahl</td>
+<td>Mecánica de Fluidos</td>
+</tr>
+<tr>
+<th>30</th>
+<td>Saanvi Bahl</td>
+<td>Mecánica de Sólidos</td>
+</tr>
+<tr>
+<th>31</th>
+<td>Saanvi Bahl</td>
+<td>Máquinas Térmicas e Hidráulicas</td>
+</tr>
+<tr>
+<th>32</th>
+<td>Saanvi Bahl</td>
+<td>Termodinámica</td>
+</tr>
+<tr>
+<th>33</th>
+<td>Saanvi Bahl</td>
+<td>Transferencia de Calor</td>
+</tr>
+<tr>
+<th>34</th>
+<td>Ulrich Nielsen</td>
+<td>Optimización Matemática</td>
+</tr>
+<tr>
+<th>35</th>
+<td>Ulrich Nielsen</td>
+<td>Programación Paralela</td>
+</tr>
+<tr>
+<th>36</th>
+<td>Zeke Landon</td>
+<td>Antropología Filosófica</td>
+</tr>
+<tr>
+<th>37</th>
+<td>Zeke Landon</td>
+<td>Filosofía Antigua</td>
+</tr>
+<tr>
+<th>38</th>
+<td>Zeke Landon</td>
+<td>Filosofía de la Ciencia</td>
+</tr>
+<tr>
+<th>39</th>
+<td>Zeke Landon</td>
+<td>Teología</td>
+</tr>
+</tbody>
+</table></div><div class="cap">40 filas × 2 columnas</div></div></div>
+<section class="cell md interp"><p><strong>Interpretación:</strong> Una fila por par profesor-curso (40 combinaciones). Permite ver la especialización: Ben Stone, por ejemplo, orienta 4 cursos de programación.</p>
+</section>
+<section class="cell md"><h2 id="bloque-d-auditoria-de-registros-huerfanos">Bloque D: Auditoría de registros huérfanos</h2>
+</section>
+<section class="cell md"><h3 id="d1-estudiantes-sin-ninguna-matricula">D1. Estudiantes sin ninguna matrícula</h3>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">sql</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">SELECT u.ID_USUARIO, u.NOMBRE, u.APELLIDO, u.SEMESTRE</span>
+<span class="s2">FROM USUARIOS u</span>
+<span class="s2">LEFT JOIN CURSOS_ESTUDIANTES ce ON ce.ID_USUARIO = u.ID_USUARIO</span>
+<span class="s2">WHERE u.ID_ROL = 1 AND ce.ID_USUARIO IS NULL;</span>
+<span class="s2">"""</span>
+<span class="n">q</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><div class="table-wrap"><table class="df">
+<thead>
+<tr>
+<th></th>
+<th class="num">ID_USUARIO</th>
+<th>NOMBRE</th>
+<th>APELLIDO</th>
+<th class="num">SEMESTRE</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td class="num">12</td>
+<td>Cal</td>
+<td>Stone</td>
+<td class="num">1</td>
+</tr>
+<tr>
+<th>1</th>
+<td class="num">18</td>
+<td>Elisabeth</td>
+<td>Doppler</td>
+<td class="num">1</td>
+</tr>
+</tbody>
+</table></div><div class="cap">2 filas × 4 columnas</div></div></div>
+<section class="cell md interp"><p><strong>Interpretación:</strong> Cal Stone y Elisabeth Doppler son estudiantes de semestre 1 sin ninguna matrícula. Conviene contactarlos: pueden estar inactivos o tener la matrícula sin registrar.</p>
+</section>
+<section class="cell md"><h3 id="d2-cursos-del-catalogo-sin-horario-programado">D2. Cursos del catálogo sin horario programado</h3>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">sql</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">SELECT cu.ID_CURSO, cu.NOMBRE</span>
+<span class="s2">FROM CURSOS cu</span>
+<span class="s2">LEFT JOIN CALENDARIO_CURSOS cc ON cc.ID_CURSO = cu.ID_CURSO</span>
+<span class="s2">WHERE cc.ID_CALENDARIO IS NULL</span>
+<span class="s2">ORDER BY cu.ID_CURSO;</span>
+<span class="s2">"""</span>
+<span class="n">q</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><div class="table-wrap"><table class="df">
+<thead>
+<tr>
+<th></th>
+<th class="num">ID_CURSO</th>
+<th>NOMBRE</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td class="num">2</td>
+<td>Introducción al Modelado de Sistemas</td>
+</tr>
+<tr>
+<th>1</th>
+<td class="num">5</td>
+<td>Programación Orientada a Objetos</td>
+</tr>
+<tr>
+<th>2</th>
+<td class="num">7</td>
+<td>Programación Funcional</td>
+</tr>
+<tr>
+<th>3</th>
+<td class="num">8</td>
+<td>Lógica para Ciencias de la Computación</td>
+</tr>
+<tr>
+<th>4</th>
+<td class="num">9</td>
+<td>Árboles y Grafos</td>
+</tr>
+<tr>
+<th>5</th>
+<td class="num">11</td>
+<td>Diseño de Interfaces Humano-Computador</td>
+</tr>
+<tr>
+<th>6</th>
+<td class="num">12</td>
+<td>Computabilidad y Complejidad</td>
+</tr>
+<tr>
+<th>7</th>
+<td class="num">13</td>
+<td>Computación Gráfica</td>
+</tr>
+<tr>
+<th>8</th>
+<td class="num">14</td>
+<td>Comunicación de Datos</td>
+</tr>
+<tr>
+<th>9</th>
+<td class="num">15</td>
+<td>Desarrollo Formal de Sistemas</td>
+</tr>
+<tr>
+<th>10</th>
+<td class="num">16</td>
+<td>Análisis y Diseño de Algoritmos</td>
+</tr>
+<tr>
+<th>11</th>
+<td class="num">17</td>
+<td>Gestión y Modelación de Datos</td>
+</tr>
+<tr>
+<th>12</th>
+<td class="num">18</td>
+<td>Sistemas Operativos</td>
+</tr>
+<tr>
+<th>13</th>
+<td class="num">21</td>
+<td>Animación y Simulación</td>
+</tr>
+<tr>
+<th>14</th>
+<td class="num">23</td>
+<td>Construcción de Software y Pruebas</td>
+</tr>
+<tr>
+<th>15</th>
+<td class="num">25</td>
+<td>Computación en la Nube</td>
+</tr>
+<tr>
+<th>16</th>
+<td class="num">31</td>
+<td>Estática</td>
+</tr>
+<tr>
+<th>17</th>
+<td class="num">37</td>
+<td>Electrotecnia</td>
+</tr>
+<tr>
+<th>18</th>
+<td class="num">41</td>
+<td>Fundamentos de Automatización</td>
+</tr>
+<tr>
+<th>19</th>
+<td class="num">42</td>
+<td>Fundamentos de Matemáticas</td>
+</tr>
+<tr>
+<th>20</th>
+<td class="num">43</td>
+<td>Geometría Plana y Analítica</td>
+</tr>
+<tr>
+<th>21</th>
+<td class="num">46</td>
+<td>Matemáticas Discretas</td>
+</tr>
+<tr>
+<th>22</th>
+<td class="num">51</td>
+<td>Ecuaciones Diferenciales</td>
+</tr>
+<tr>
+<th>23</th>
+<td class="num">54</td>
+<td>Estadística Avanzada</td>
+</tr>
+<tr>
+<th>24</th>
+<td class="num">55</td>
+<td>Griego y Latín</td>
+</tr>
+<tr>
+<th>25</th>
+<td class="num">56</td>
+<td>Textos Filosóficos</td>
+</tr>
+<tr>
+<th>26</th>
+<td class="num">59</td>
+<td>Humanidades</td>
+</tr>
+<tr>
+<th>27</th>
+<td class="num">60</td>
+<td>Filosofía Medieval</td>
+</tr>
+<tr>
+<th>28</th>
+<td class="num">61</td>
+<td>Epistemología</td>
+</tr>
+<tr>
+<th>29</th>
+<td class="num">62</td>
+<td>Filosofía Moderna</td>
+</tr>
+<tr>
+<th>30</th>
+<td class="num">63</td>
+<td>Ontología</td>
+</tr>
+<tr>
+<th>31</th>
+<td class="num">64</td>
+<td>Filosofía Contemporánea</td>
+</tr>
+<tr>
+<th>32</th>
+<td class="num">68</td>
+<td>Filosofía del Lenguaje</td>
+</tr>
+<tr>
+<th>33</th>
+<td class="num">69</td>
+<td>Filosofía No Occidental</td>
+</tr>
+<tr>
+<th>34</th>
+<td class="num">70</td>
+<td>Trabajo de Grado</td>
+</tr>
+</tbody>
+</table></div><div class="cap">35 filas × 2 columnas</div></div></div>
+<section class="cell md interp"><p><strong>Interpretación:</strong> 35 de los 71 cursos del catálogo (49 %) no tienen ningún horario. Muchos son del núcleo de Sistemas (Programación Funcional, Árboles y Grafos, Sistemas Operativos): la malla existe en papel pero no en la programación.</p>
+</section>
+<section class="cell md"><h3 id="d3-cursos-del-catalogo-sin-ningun-estudiante-matriculado">D3. Cursos del catálogo sin ningún estudiante matriculado</h3>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">sql</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">SELECT cu.ID_CURSO, cu.NOMBRE</span>
+<span class="s2">FROM CURSOS cu</span>
+<span class="s2">WHERE cu.ID_CURSO NOT IN (</span>
+<span class="s2">    SELECT cc.ID_CURSO</span>
+<span class="s2">    FROM CALENDARIO_CURSOS cc</span>
+<span class="s2">    INNER JOIN CURSOS_ESTUDIANTES ce ON ce.ID_CALENDARIO = cc.ID_CALENDARIO)</span>
+<span class="s2">ORDER BY cu.ID_CURSO;</span>
+<span class="s2">"""</span>
+<span class="n">q</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><div class="table-wrap"><table class="df">
+<thead>
+<tr>
+<th></th>
+<th class="num">ID_CURSO</th>
+<th>NOMBRE</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td class="num">2</td>
+<td>Introducción al Modelado de Sistemas</td>
+</tr>
+<tr>
+<th>1</th>
+<td class="num">5</td>
+<td>Programación Orientada a Objetos</td>
+</tr>
+<tr>
+<th>2</th>
+<td class="num">7</td>
+<td>Programación Funcional</td>
+</tr>
+<tr>
+<th>3</th>
+<td class="num">8</td>
+<td>Lógica para Ciencias de la Computación</td>
+</tr>
+<tr>
+<th>4</th>
+<td class="num">9</td>
+<td>Árboles y Grafos</td>
+</tr>
+<tr>
+<th>5</th>
+<td class="num">11</td>
+<td>Diseño de Interfaces Humano-Computador</td>
+</tr>
+<tr>
+<th>6</th>
+<td class="num">12</td>
+<td>Computabilidad y Complejidad</td>
+</tr>
+<tr>
+<th>7</th>
+<td class="num">13</td>
+<td>Computación Gráfica</td>
+</tr>
+<tr>
+<th>8</th>
+<td class="num">14</td>
+<td>Comunicación de Datos</td>
+</tr>
+<tr>
+<th>9</th>
+<td class="num">15</td>
+<td>Desarrollo Formal de Sistemas</td>
+</tr>
+<tr>
+<th>10</th>
+<td class="num">16</td>
+<td>Análisis y Diseño de Algoritmos</td>
+</tr>
+<tr>
+<th>11</th>
+<td class="num">17</td>
+<td>Gestión y Modelación de Datos</td>
+</tr>
+<tr>
+<th>12</th>
+<td class="num">18</td>
+<td>Sistemas Operativos</td>
+</tr>
+<tr>
+<th>13</th>
+<td class="num">19</td>
+<td>Programación Paralela</td>
+</tr>
+<tr>
+<th>14</th>
+<td class="num">20</td>
+<td>Aprendizaje Automático</td>
+</tr>
+<tr>
+<th>15</th>
+<td class="num">21</td>
+<td>Animación y Simulación</td>
+</tr>
+<tr>
+<th>16</th>
+<td class="num">22</td>
+<td>Introducción a la Seguridad Informática</td>
+</tr>
+<tr>
+<th>17</th>
+<td class="num">23</td>
+<td>Construcción de Software y Pruebas</td>
+</tr>
+<tr>
+<th>18</th>
+<td class="num">24</td>
+<td>Sistemas Inteligentes</td>
+</tr>
+<tr>
+<th>19</th>
+<td class="num">25</td>
+<td>Computación en la Nube</td>
+</tr>
+<tr>
+<th>20</th>
+<td class="num">26</td>
+<td>Desarrollo de Videouegos</td>
+</tr>
+<tr>
+<th>21</th>
+<td class="num">31</td>
+<td>Estática</td>
+</tr>
+<tr>
+<th>22</th>
+<td class="num">37</td>
+<td>Electrotecnia</td>
+</tr>
+<tr>
+<th>23</th>
+<td class="num">38</td>
+<td>Transferencia de Calor</td>
+</tr>
+<tr>
+<th>24</th>
+<td class="num">39</td>
+<td>Diseño Mecánico</td>
+</tr>
+<tr>
+<th>25</th>
+<td class="num">40</td>
+<td>Máquinas Térmicas e Hidráulicas</td>
+</tr>
+<tr>
+<th>26</th>
+<td class="num">41</td>
+<td>Fundamentos de Automatización</td>
+</tr>
+<tr>
+<th>27</th>
+<td class="num">42</td>
+<td>Fundamentos de Matemáticas</td>
+</tr>
+<tr>
+<th>28</th>
+<td class="num">43</td>
+<td>Geometría Plana y Analítica</td>
+</tr>
+<tr>
+<th>29</th>
+<td class="num">46</td>
+<td>Matemáticas Discretas</td>
+</tr>
+<tr>
+<th>30</th>
+<td class="num">51</td>
+<td>Ecuaciones Diferenciales</td>
+</tr>
+<tr>
+<th>31</th>
+<td class="num">52</td>
+<td>Estadítica Aplicada</td>
+</tr>
+<tr>
+<th>32</th>
+<td class="num">54</td>
+<td>Estadística Avanzada</td>
+</tr>
+<tr>
+<th>33</th>
+<td class="num">55</td>
+<td>Griego y Latín</td>
+</tr>
+<tr>
+<th>34</th>
+<td class="num">56</td>
+<td>Textos Filosóficos</td>
+</tr>
+<tr>
+<th>35</th>
+<td class="num">59</td>
+<td>Humanidades</td>
+</tr>
+<tr>
+<th>36</th>
+<td class="num">60</td>
+<td>Filosofía Medieval</td>
+</tr>
+<tr>
+<th>37</th>
+<td class="num">61</td>
+<td>Epistemología</td>
+</tr>
+<tr>
+<th>38</th>
+<td class="num">62</td>
+<td>Filosofía Moderna</td>
+</tr>
+<tr>
+<th>39</th>
+<td class="num">63</td>
+<td>Ontología</td>
+</tr>
+<tr>
+<th>40</th>
+<td class="num">64</td>
+<td>Filosofía Contemporánea</td>
+</tr>
+<tr>
+<th>41</th>
+<td class="num">65</td>
+<td>Antropología Filosófica</td>
+</tr>
+<tr>
+<th>42</th>
+<td class="num">66</td>
+<td>Filosofía de la Ciencia</td>
+</tr>
+<tr>
+<th>43</th>
+<td class="num">67</td>
+<td>Ética</td>
+</tr>
+<tr>
+<th>44</th>
+<td class="num">68</td>
+<td>Filosofía del Lenguaje</td>
+</tr>
+<tr>
+<th>45</th>
+<td class="num">69</td>
+<td>Filosofía No Occidental</td>
+</tr>
+<tr>
+<th>46</th>
+<td class="num">70</td>
+<td>Trabajo de Grado</td>
+</tr>
+<tr>
+<th>47</th>
+<td class="num">71</td>
+<td>Práctica Estudiantil</td>
+</tr>
+</tbody>
+</table></div><div class="cap">48 filas × 2 columnas</div></div></div>
+<section class="cell md interp"><p><strong>Interpretación:</strong> 48 de 71 cursos no tienen estudiantes matriculados. Solo 23 cursos (32 %) tienen demanda real.</p>
+</section>
+<section class="cell md"><h3 id="d4-cursos-ofertados-en-calendario-sin-estudiantes-matriculad">D4. Cursos ofertados (en calendario) sin estudiantes matriculados</h3>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">sql</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">SELECT DISTINCT cu.ID_CURSO, cu.NOMBRE</span>
+<span class="s2">FROM CURSOS cu</span>
+<span class="s2">INNER JOIN CALENDARIO_CURSOS cc ON cc.ID_CURSO = cu.ID_CURSO</span>
+<span class="s2">WHERE cu.ID_CURSO NOT IN (</span>
+<span class="s2">    SELECT cc2.ID_CURSO</span>
+<span class="s2">    FROM CALENDARIO_CURSOS cc2</span>
+<span class="s2">    INNER JOIN CURSOS_ESTUDIANTES ce ON ce.ID_CALENDARIO = cc2.ID_CALENDARIO)</span>
+<span class="s2">ORDER BY cu.ID_CURSO;</span>
+<span class="s2">"""</span>
+<span class="n">q</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><div class="table-wrap"><table class="df">
+<thead>
+<tr>
+<th></th>
+<th class="num">ID_CURSO</th>
+<th>NOMBRE</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td class="num">19</td>
+<td>Programación Paralela</td>
+</tr>
+<tr>
+<th>1</th>
+<td class="num">20</td>
+<td>Aprendizaje Automático</td>
+</tr>
+<tr>
+<th>2</th>
+<td class="num">22</td>
+<td>Introducción a la Seguridad Informática</td>
+</tr>
+<tr>
+<th>3</th>
+<td class="num">24</td>
+<td>Sistemas Inteligentes</td>
+</tr>
+<tr>
+<th>4</th>
+<td class="num">26</td>
+<td>Desarrollo de Videouegos</td>
+</tr>
+<tr>
+<th>5</th>
+<td class="num">38</td>
+<td>Transferencia de Calor</td>
+</tr>
+<tr>
+<th>6</th>
+<td class="num">39</td>
+<td>Diseño Mecánico</td>
+</tr>
+<tr>
+<th>7</th>
+<td class="num">40</td>
+<td>Máquinas Térmicas e Hidráulicas</td>
+</tr>
+<tr>
+<th>8</th>
+<td class="num">52</td>
+<td>Estadítica Aplicada</td>
+</tr>
+<tr>
+<th>9</th>
+<td class="num">65</td>
+<td>Antropología Filosófica</td>
+</tr>
+<tr>
+<th>10</th>
+<td class="num">66</td>
+<td>Filosofía de la Ciencia</td>
+</tr>
+<tr>
+<th>11</th>
+<td class="num">67</td>
+<td>Ética</td>
+</tr>
+<tr>
+<th>12</th>
+<td class="num">71</td>
+<td>Práctica Estudiantil</td>
+</tr>
+</tbody>
+</table></div><div class="cap">13 filas × 2 columnas</div></div></div>
+<section class="cell md interp"><p><strong>Interpretación:</strong> De los 48 sin matrículas, 35 ni siquiera se ofertan; los otros 13 sí están programados pero sin estudiantes (p. ej. Aprendizaje Automático y Sistemas Inteligentes). Es el punto de decisión: revisar si se abren, se fusionan o se promocionan.</p>
+</section>
+<section class="cell md"><h2 id="bloque-e-agregaciones-estadisticas-y-cupos">Bloque E: Agregaciones, estadísticas y cupos</h2>
+</section>
+<section class="cell md"><h3 id="e1-total-de-estudiantes">E1. Total de estudiantes</h3>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">sql</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">SELECT COUNT(*) AS total_estudiantes FROM USUARIOS WHERE ID_ROL = 1;</span>
+<span class="s2">"""</span>
+<span class="n">q</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><div class="table-wrap"><table class="df">
+<thead>
+<tr>
+<th></th>
+<th class="num">total_estudiantes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td class="num">10</td>
+</tr>
+</tbody>
+</table></div><div class="cap">1 fila × 1 columna</div></div></div>
+<section class="cell md interp"><p><strong>Interpretación:</strong> La universidad registra 10 estudiantes.</p>
+</section>
+<section class="cell md"><h3 id="e2-total-de-profesores-y-de-estudiantes-en-una-consulta">E2. Total de profesores y de estudiantes en una consulta</h3>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">sql</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">SELECT SUM(CASE WHEN ID_ROL = 2 THEN 1 ELSE 0 END) AS total_profesores,</span>
+<span class="s2">       SUM(CASE WHEN ID_ROL = 1 THEN 1 ELSE 0 END) AS total_estudiantes</span>
+<span class="s2">FROM USUARIOS;</span>
+<span class="s2">"""</span>
+<span class="n">q</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><div class="table-wrap"><table class="df">
+<thead>
+<tr>
+<th></th>
+<th class="num">total_profesores</th>
+<th class="num">total_estudiantes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td class="num">10</td>
+<td class="num">10</td>
+</tr>
+</tbody>
+</table></div><div class="cap">1 fila × 2 columnas</div></div></div>
+<section class="cell md interp"><p><strong>Interpretación:</strong> Se obtiene 10 profesores y 10 estudiantes en una sola pasada mediante agregación condicional (SUM + CASE), más eficiente que dos subconsultas.</p>
+</section>
+<section class="cell md"><h3 id="e3-promedio-de-semestre-de-los-estudiantes">E3. Promedio de semestre de los estudiantes</h3>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">sql</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">SELECT ROUND(AVG(SEMESTRE), 2) AS promedio_semestre FROM USUARIOS WHERE ID_ROL = 1;</span>
+<span class="s2">"""</span>
+<span class="n">q</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><div class="table-wrap"><table class="df">
+<thead>
+<tr>
+<th></th>
+<th class="num">promedio_semestre</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td class="num">4.0</td>
+</tr>
+</tbody>
+</table></div><div class="cap">1 fila × 1 columna</div></div></div>
+<section class="cell md interp"><p><strong>Interpretación:</strong> El promedio de semestre es 4.0. Está calculado solo sobre estudiantes; si se incluyeran los docentes (semestre 0) bajaría a 2.0 y sería engañoso.</p>
+</section>
+<section class="cell md"><h3 id="e4-estudiante-s-en-el-semestre-mas-alto">E4. Estudiante(s) en el semestre más alto</h3>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">sql</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">SELECT ID_USUARIO, NOMBRE, APELLIDO, SEMESTRE</span>
+<span class="s2">FROM USUARIOS</span>
+<span class="s2">WHERE ID_ROL = 1</span>
+<span class="s2">  AND SEMESTRE = (SELECT MAX(SEMESTRE) FROM USUARIOS WHERE ID_ROL = 1);</span>
+<span class="s2">"""</span>
+<span class="n">q</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><div class="table-wrap"><table class="df">
+<thead>
+<tr>
+<th></th>
+<th class="num">ID_USUARIO</th>
+<th>NOMBRE</th>
+<th>APELLIDO</th>
+<th class="num">SEMESTRE</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td class="num">19</td>
+<td>Magnus</td>
+<td>Nielsen</td>
+<td class="num">6</td>
+</tr>
+</tbody>
+</table></div><div class="cap">1 fila × 4 columnas</div></div></div>
+<section class="cell md interp"><p><strong>Interpretación:</strong> Magnus Nielsen (semestre 6) es el estudiante más avanzado y también el de mayor número de matrículas (29).</p>
+</section>
+<section class="cell md"><h3 id="e5-cursos-ofertados-por-facultad">E5. Cursos ofertados por facultad</h3>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">sql</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">SELECT COALESCE(f.NOMBRE, 'Sin facultad asignada') AS facultad,</span>
+<span class="s2">       COUNT(DISTINCT cc.ID_CURSO) AS cursos_ofertados,</span>
+<span class="s2">       COUNT(cc.ID_CALENDARIO)     AS secciones</span>
+<span class="s2">FROM CALENDARIO_CURSOS cc</span>
+<span class="s2">INNER JOIN CURSOS cu ON cu.ID_CURSO = cc.ID_CURSO</span>
+<span class="s2">LEFT JOIN  FACULTADES f ON f.ID_FACULTAD = cu.ID_FACULTAD</span>
+<span class="s2">GROUP BY facultad;</span>
+<span class="s2">"""</span>
+<span class="n">q</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><div class="table-wrap"><table class="df">
+<thead>
+<tr>
+<th></th>
+<th>facultad</th>
+<th class="num">cursos_ofertados</th>
+<th class="num">secciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>Humanidades y Ciencias Sociales</td>
+<td class="num">5</td>
+<td class="num">6</td>
+</tr>
+<tr>
+<th>1</th>
+<td>Ingeniería y Ciencias</td>
+<td class="num">30</td>
+<td class="num">65</td>
+</tr>
+<tr>
+<th>2</th>
+<td>Sin facultad asignada</td>
+<td class="num">1</td>
+<td class="num">1</td>
+</tr>
+</tbody>
+</table></div><div class="cap">3 filas × 3 columnas</div></div></div>
+<section class="cell md interp"><p><strong>Interpretación:</strong> Ingeniería y Ciencias ofrece 30 cursos en 65 secciones; Humanidades 5 cursos en 6 secciones. Un curso ('Trabajo de Grado') no tiene facultad asignada: hay que corregir ese dato.</p>
+</section>
+<section class="cell md"><h3 id="e6-facultades-con-mas-de-3-carreras">E6. Facultades con más de 3 carreras</h3>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">sql</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">SELECT f.NOMBRE, COUNT(*) AS num_carreras</span>
+<span class="s2">FROM FACULTADES f</span>
+<span class="s2">INNER JOIN CARRERAS c ON c.ID_FACULTAD = f.ID_FACULTAD</span>
+<span class="s2">GROUP BY f.ID_FACULTAD, f.NOMBRE</span>
+<span class="s2">HAVING COUNT(*) &gt; 3;</span>
+<span class="s2">"""</span>
+<span class="n">q</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><div class="empty">Sin resultados: la consulta devolvió 0 filas (2 columnas: NOMBRE, num_carreras).</div></div></div>
+<section class="cell md interp"><p><strong>Interpretación:</strong> Ninguna facultad supera las 3 carreras (resultado vacío). La verificación E6b muestra que el máximo es 3 en Ingeniería y Ciencias: con HAVING &gt; 2 sí aparecería.</p>
+</section>
+<section class="cell md"><h3 id="e6b-verificacion-carreras-por-facultad-sin-el-filtro-having">E6b. (Verificación) Carreras por facultad sin el filtro HAVING</h3>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">sql</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">SELECT f.NOMBRE, COUNT(*) AS num_carreras</span>
+<span class="s2">FROM FACULTADES f</span>
+<span class="s2">INNER JOIN CARRERAS c ON c.ID_FACULTAD = f.ID_FACULTAD</span>
+<span class="s2">GROUP BY f.ID_FACULTAD, f.NOMBRE;</span>
+<span class="s2">"""</span>
+<span class="n">q</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><div class="table-wrap"><table class="df">
+<thead>
+<tr>
+<th></th>
+<th>NOMBRE</th>
+<th class="num">num_carreras</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>Ingeniería y Ciencias</td>
+<td class="num">3</td>
+</tr>
+<tr>
+<th>1</th>
+<td>Humanidades y Ciencias Sociales</td>
+<td class="num">1</td>
+</tr>
+</tbody>
+</table></div><div class="cap">2 filas × 2 columnas</div></div></div>
+<section class="cell md interp"><p><strong>Interpretación:</strong> Confirma el resultado vacío de E6: Ingeniería y Ciencias tiene 3 carreras y Humanidades 1, así que ninguna supera el umbral de 3.</p>
+</section>
+<section class="cell md"><h3 id="e7-estudiantes-matriculados-por-carrera">E7. Estudiantes matriculados por carrera</h3>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">sql</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">SELECT c.NOMBRE AS carrera, COUNT(ce.ID_USUARIO) AS estudiantes</span>
+<span class="s2">FROM CARRERAS c</span>
+<span class="s2">LEFT JOIN CARRERAS_ESTUDIANTES ce ON ce.ID_CARRERA = c.ID_CARRERA</span>
+<span class="s2">GROUP BY c.ID_CARRERA, c.NOMBRE</span>
+<span class="s2">ORDER BY estudiantes DESC;</span>
+<span class="s2">"""</span>
+<span class="n">q</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><div class="table-wrap"><table class="df">
+<thead>
+<tr>
+<th></th>
+<th>carrera</th>
+<th class="num">estudiantes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>Ingeniería Mecánica</td>
+<td class="num">4</td>
+</tr>
+<tr>
+<th>1</th>
+<td>Ingeniería de Sistemas</td>
+<td class="num">3</td>
+</tr>
+<tr>
+<th>2</th>
+<td>Matemáticas Aplicadas</td>
+<td class="num">2</td>
+</tr>
+<tr>
+<th>3</th>
+<td>Filosofía</td>
+<td class="num">1</td>
+</tr>
+</tbody>
+</table></div><div class="cap">4 filas × 2 columnas</div></div></div>
+<section class="cell md interp"><p><strong>Interpretación:</strong> Ingeniería Mecánica lidera con 4 estudiantes, seguida de Sistemas con 3, Matemáticas con 2 y Filosofía con 1.</p>
+</section>
+<section class="cell md"><h3 id="e8-carrera-con-mas-estudiantes">E8. Carrera con más estudiantes</h3>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">sql</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">SELECT c.NOMBRE AS carrera, COUNT(*) AS estudiantes</span>
+<span class="s2">FROM CARRERAS c</span>
+<span class="s2">INNER JOIN CARRERAS_ESTUDIANTES ce ON ce.ID_CARRERA = c.ID_CARRERA</span>
+<span class="s2">GROUP BY c.ID_CARRERA, c.NOMBRE</span>
+<span class="s2">HAVING COUNT(*) = (SELECT MAX(n) FROM (SELECT COUNT(*) AS n FROM CARRERAS_ESTUDIANTES GROUP BY ID_CARRERA));</span>
+<span class="s2">"""</span>
+<span class="n">q</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><div class="table-wrap"><table class="df">
+<thead>
+<tr>
+<th></th>
+<th>carrera</th>
+<th class="num">estudiantes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>Ingeniería Mecánica</td>
+<td class="num">4</td>
+</tr>
+</tbody>
+</table></div><div class="cap">1 fila × 2 columnas</div></div></div>
+<section class="cell md interp"><p><strong>Interpretación:</strong> Ingeniería Mecánica es la carrera con más estudiantes (4). Se usa un HAVING contra el máximo para que, si hubiera empate, devuelva todas las carreras empatadas.</p>
+</section>
+<section class="cell md"><h3 id="e9-edificio-con-mas-salones">E9. Edificio con más salones</h3>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">sql</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">SELECT e.NOMBRE AS edificio, COUNT(*) AS salones</span>
+<span class="s2">FROM EDIFICIOS e</span>
+<span class="s2">INNER JOIN SALONES s ON s.ID_EDIFICIO = e.ID_EDIFICIO</span>
+<span class="s2">GROUP BY e.ID_EDIFICIO, e.NOMBRE</span>
+<span class="s2">HAVING COUNT(*) = (SELECT MAX(n) FROM (SELECT COUNT(*) AS n FROM SALONES GROUP BY ID_EDIFICIO));</span>
+<span class="s2">"""</span>
+<span class="n">q</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><div class="table-wrap"><table class="df">
+<thead>
+<tr>
+<th></th>
+<th>edificio</th>
+<th class="num">salones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>El Lago</td>
+<td class="num">18</td>
+</tr>
+</tbody>
+</table></div><div class="cap">1 fila × 2 columnas</div></div></div>
+<section class="cell md interp"><p><strong>Interpretación:</strong> El Lago tiene 18 de los 42 salones (43 %), así que concentra la infraestructura; es el edificio a priorizar en mantenimiento y control de ocupación.</p>
+</section>
+<section class="cell md"><h3 id="e10-cursos-ofertados-secciones-por-docente-de-mayor-a-menor">E10. Cursos ofertados (secciones) por docente, de mayor a menor</h3>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">sql</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">SELECT p.NOMBRE || ' ' || p.APELLIDO AS profesor,</span>
+<span class="s2">       COUNT(*) AS secciones,</span>
+<span class="s2">       COUNT(DISTINCT cc.ID_CURSO) AS cursos_distintos</span>
+<span class="s2">FROM CALENDARIO_CURSOS cc</span>
+<span class="s2">INNER JOIN USUARIOS p ON p.ID_USUARIO = cc.ID_PROFESOR</span>
+<span class="s2">GROUP BY p.ID_USUARIO, profesor</span>
+<span class="s2">ORDER BY secciones DESC, profesor;</span>
+<span class="s2">"""</span>
+<span class="n">q</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><div class="table-wrap"><table class="df">
+<thead>
+<tr>
+<th></th>
+<th>profesor</th>
+<th class="num">secciones</th>
+<th class="num">cursos_distintos</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>Saanvi Bahl</td>
+<td class="num">18</td>
+<td class="num">8</td>
+</tr>
+<tr>
+<th>1</th>
+<td>Ben Stone</td>
+<td class="num">8</td>
+<td class="num">4</td>
+</tr>
+<tr>
+<th>2</th>
+<td>Claudia Tiedemann</td>
+<td class="num">8</td>
+<td class="num">5</td>
+</tr>
+<tr>
+<th>3</th>
+<td>Grace Stone</td>
+<td class="num">8</td>
+<td class="num">4</td>
+</tr>
+<tr>
+<th>4</th>
+<td>Jared Vásquez</td>
+<td class="num">8</td>
+<td class="num">5</td>
+</tr>
+<tr>
+<th>5</th>
+<td>Mikaela Stone</td>
+<td class="num">6</td>
+<td class="num">4</td>
+</tr>
+<tr>
+<th>6</th>
+<td>Robert Vance</td>
+<td class="num">6</td>
+<td class="num">3</td>
+</tr>
+<tr>
+<th>7</th>
+<td>Ulrich Nielsen</td>
+<td class="num">4</td>
+<td class="num">2</td>
+</tr>
+<tr>
+<th>8</th>
+<td>Zeke Landon</td>
+<td class="num">4</td>
+<td class="num">4</td>
+</tr>
+<tr>
+<th>9</th>
+<td>Charlotte Doppler</td>
+<td class="num">2</td>
+<td class="num">1</td>
+</tr>
+</tbody>
+</table></div><div class="cap">10 filas × 3 columnas</div></div></div>
+<section class="cell md interp"><p><strong>Interpretación:</strong> Saanvi Bahl dicta 18 secciones de 8 cursos distintos (25 % de la oferta). Es un riesgo operativo: una ausencia afectaría un cuarto de la programación.</p>
+</section>
+<section class="cell md"><h3 id="e11-numero-de-matriculas-por-estudiante">E11. Número de matrículas por estudiante</h3>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">sql</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">SELECT u.ID_USUARIO, u.NOMBRE || ' ' || u.APELLIDO AS estudiante, COUNT(ce.ID_CALENDARIO) AS matriculas</span>
+<span class="s2">FROM USUARIOS u</span>
+<span class="s2">LEFT JOIN CURSOS_ESTUDIANTES ce ON ce.ID_USUARIO = u.ID_USUARIO</span>
+<span class="s2">WHERE u.ID_ROL = 1</span>
+<span class="s2">GROUP BY u.ID_USUARIO, estudiante</span>
+<span class="s2">ORDER BY matriculas DESC;</span>
+<span class="s2">"""</span>
+<span class="n">q</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><div class="table-wrap"><table class="df">
+<thead>
+<tr>
+<th></th>
+<th class="num">ID_USUARIO</th>
+<th>estudiante</th>
+<th class="num">matriculas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td class="num">19</td>
+<td>Magnus Nielsen</td>
+<td class="num">29</td>
+</tr>
+<tr>
+<th>1</th>
+<td class="num">14</td>
+<td>Jonas Kahnwald</td>
+<td class="num">28</td>
+</tr>
+<tr>
+<th>2</th>
+<td class="num">16</td>
+<td>Bartosz Tiedemann</td>
+<td class="num">28</td>
+</tr>
+<tr>
+<th>3</th>
+<td class="num">17</td>
+<td>Franziska Doppler</td>
+<td class="num">21</td>
+</tr>
+<tr>
+<th>4</th>
+<td class="num">11</td>
+<td>Olive Stone</td>
+<td class="num">19</td>
+</tr>
+<tr>
+<th>5</th>
+<td class="num">15</td>
+<td>Martha Nielsen</td>
+<td class="num">19</td>
+</tr>
+<tr>
+<th>6</th>
+<td class="num">20</td>
+<td>Mads Nielsen</td>
+<td class="num">5</td>
+</tr>
+<tr>
+<th>7</th>
+<td class="num">13</td>
+<td>Angelina Meyer</td>
+<td class="num">2</td>
+</tr>
+<tr>
+<th>8</th>
+<td class="num">12</td>
+<td>Cal Stone</td>
+<td class="num">0</td>
+</tr>
+<tr>
+<th>9</th>
+<td class="num">18</td>
+<td>Elisabeth Doppler</td>
+<td class="num">0</td>
+</tr>
+</tbody>
+</table></div><div class="cap">10 filas × 3 columnas</div></div></div>
+<section class="cell md interp"><p><strong>Interpretación:</strong> Magnus, Jonas y Bartosz tienen 28-29 matrículas, y Franziska 21. Dos estudiantes no tienen ninguna.</p>
+</section>
+<section class="cell md"><h3 id="e12-estudiantes-matriculados-en-menos-de-10-cursos">E12. Estudiantes matriculados en menos de 10 cursos</h3>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">sql</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">SELECT u.ID_USUARIO, u.NOMBRE || ' ' || u.APELLIDO AS estudiante, COUNT(ce.ID_CALENDARIO) AS matriculas</span>
+<span class="s2">FROM USUARIOS u</span>
+<span class="s2">LEFT JOIN CURSOS_ESTUDIANTES ce ON ce.ID_USUARIO = u.ID_USUARIO</span>
+<span class="s2">WHERE u.ID_ROL = 1</span>
+<span class="s2">GROUP BY u.ID_USUARIO, estudiante</span>
+<span class="s2">HAVING COUNT(ce.ID_CALENDARIO) &lt; 10</span>
+<span class="s2">ORDER BY matriculas;</span>
+<span class="s2">"""</span>
+<span class="n">q</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><div class="table-wrap"><table class="df">
+<thead>
+<tr>
+<th></th>
+<th class="num">ID_USUARIO</th>
+<th>estudiante</th>
+<th class="num">matriculas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td class="num">12</td>
+<td>Cal Stone</td>
+<td class="num">0</td>
+</tr>
+<tr>
+<th>1</th>
+<td class="num">18</td>
+<td>Elisabeth Doppler</td>
+<td class="num">0</td>
+</tr>
+<tr>
+<th>2</th>
+<td class="num">13</td>
+<td>Angelina Meyer</td>
+<td class="num">2</td>
+</tr>
+<tr>
+<th>3</th>
+<td class="num">20</td>
+<td>Mads Nielsen</td>
+<td class="num">5</td>
+</tr>
+</tbody>
+</table></div><div class="cap">4 filas × 3 columnas</div></div></div>
+<section class="cell md interp"><p><strong>Interpretación:</strong> Cuatro estudiantes están por debajo de 10 matrículas: 2 con 0, uno con 2 (Angelina Meyer) y uno con 5 (Mads Nielsen). Son candidatos a seguimiento académico por baja carga.</p>
+</section>
+<section class="cell md"><h3 id="e13-curso-con-mas-matriculas-vs-curso-con-mas-estudiantes-un">E13. Curso con más matrículas vs. curso con más estudiantes únicos</h3>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">sql</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">WITH por_curso AS (</span>
+<span class="s2">    SELECT cu.ID_CURSO, cu.NOMBRE,</span>
+<span class="s2">           COUNT(*)                     AS matriculas,</span>
+<span class="s2">           COUNT(DISTINCT ce.ID_USUARIO) AS estudiantes_unicos</span>
+<span class="s2">    FROM CURSOS_ESTUDIANTES ce</span>
+<span class="s2">    INNER JOIN CALENDARIO_CURSOS cc ON cc.ID_CALENDARIO = ce.ID_CALENDARIO</span>
+<span class="s2">    INNER JOIN CURSOS cu ON cu.ID_CURSO = cc.ID_CURSO</span>
+<span class="s2">    GROUP BY cu.ID_CURSO, cu.NOMBRE</span>
+<span class="s2">)</span>
+<span class="s2">SELECT 'Más matrículas' AS criterio, NOMBRE, matriculas, estudiantes_unicos</span>
+<span class="s2">FROM por_curso WHERE matriculas = (SELECT MAX(matriculas) FROM por_curso)</span>
+<span class="s2">UNION ALL</span>
+<span class="s2">SELECT 'Más estudiantes únicos', NOMBRE, matriculas, estudiantes_unicos</span>
+<span class="s2">FROM por_curso WHERE estudiantes_unicos = (SELECT MAX(estudiantes_unicos) FROM por_curso);</span>
+<span class="s2">"""</span>
+<span class="n">q</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><div class="table-wrap"><table class="df">
+<thead>
+<tr>
+<th></th>
+<th>criterio</th>
+<th>NOMBRE</th>
+<th class="num">matriculas</th>
+<th class="num">estudiantes_unicos</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>Más matrículas</td>
+<td>Cinemática y Dinámica</td>
+<td class="num">18</td>
+<td class="num">6</td>
+</tr>
+<tr>
+<th>1</th>
+<td>Más estudiantes únicos</td>
+<td>Cálculo Diferencial</td>
+<td class="num">14</td>
+<td class="num">7</td>
+</tr>
+</tbody>
+</table></div><div class="cap">2 filas × 4 columnas</div></div></div>
+<section class="cell md interp"><p><strong>Interpretación:</strong> 'Cinemática y Dinámica' lidera en matrículas (18) porque se dicta 3 veces por semana, pero 'Cálculo Diferencial' tiene más estudiantes distintos (7). Medir por matrículas sesga hacia cursos con más secciones; para demanda real conviene usar estudiantes únicos.</p>
+</section>
+<section class="cell md"><h3 id="e14-demanda-y-cupos-secciones-con-5-o-mas-inscritos">E14. Demanda y cupos: secciones con 5 o más inscritos</h3>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">sql</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">SELECT cc.ID_CALENDARIO, cu.NOMBRE AS curso, cc.DIA, cc.CUPO,</span>
+<span class="s2">       COUNT(ce.ID_USUARIO) AS inscritos</span>
+<span class="s2">FROM CALENDARIO_CURSOS cc</span>
+<span class="s2">INNER JOIN CURSOS cu ON cu.ID_CURSO = cc.ID_CURSO</span>
+<span class="s2">INNER JOIN CURSOS_ESTUDIANTES ce ON ce.ID_CALENDARIO = cc.ID_CALENDARIO</span>
+<span class="s2">GROUP BY cc.ID_CALENDARIO, cu.NOMBRE, cc.DIA, cc.CUPO</span>
+<span class="s2">HAVING COUNT(ce.ID_USUARIO) &gt;= 5</span>
+<span class="s2">ORDER BY inscritos DESC;</span>
+<span class="s2">"""</span>
+<span class="n">q</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><div class="table-wrap"><table class="df">
+<thead>
+<tr>
+<th></th>
+<th class="num">ID_CALENDARIO</th>
+<th>curso</th>
+<th>DIA</th>
+<th class="num">CUPO</th>
+<th class="num">inscritos</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td class="num">13</td>
+<td>Cálculo Diferencial</td>
+<td>Martes</td>
+<td class="num">30</td>
+<td class="num">7</td>
+</tr>
+<tr>
+<th>1</th>
+<td class="num">14</td>
+<td>Cálculo Diferencial</td>
+<td>Jueves</td>
+<td class="num">30</td>
+<td class="num">7</td>
+</tr>
+<tr>
+<th>2</th>
+<td class="num">15</td>
+<td>Álgebra Lineal</td>
+<td>Martes</td>
+<td class="num">30</td>
+<td class="num">6</td>
+</tr>
+<tr>
+<th>3</th>
+<td class="num">16</td>
+<td>Álgebra Lineal</td>
+<td>Jueves</td>
+<td class="num">30</td>
+<td class="num">6</td>
+</tr>
+<tr>
+<th>4</th>
+<td class="num">23</td>
+<td>Cálculo Integral</td>
+<td>Martes</td>
+<td class="num">20</td>
+<td class="num">6</td>
+</tr>
+<tr>
+<th>5</th>
+<td class="num">24</td>
+<td>Cálculo Integral</td>
+<td>Jueves</td>
+<td class="num">20</td>
+<td class="num">6</td>
+</tr>
+<tr>
+<th>6</th>
+<td class="num">25</td>
+<td>Cálculo Multivariado</td>
+<td>Martes</td>
+<td class="num">20</td>
+<td class="num">6</td>
+</tr>
+<tr>
+<th>7</th>
+<td class="num">26</td>
+<td>Cálculo Multivariado</td>
+<td>Jueves</td>
+<td class="num">20</td>
+<td class="num">6</td>
+</tr>
+<tr>
+<th>8</th>
+<td class="num">31</td>
+<td>Teología</td>
+<td>Lunes</td>
+<td class="num">30</td>
+<td class="num">6</td>
+</tr>
+<tr>
+<th>9</th>
+<td class="num">35</td>
+<td>Cinemática y Dinámica</td>
+<td>Lunes</td>
+<td class="num">30</td>
+<td class="num">6</td>
+</tr>
+<tr>
+<th>10</th>
+<td class="num">36</td>
+<td>Cinemática y Dinámica</td>
+<td>Miércoles</td>
+<td class="num">30</td>
+<td class="num">6</td>
+</tr>
+<tr>
+<th>11</th>
+<td class="num">37</td>
+<td>Cinemática y Dinámica</td>
+<td>Viernes</td>
+<td class="num">30</td>
+<td class="num">6</td>
+</tr>
+<tr>
+<th>12</th>
+<td class="num">38</td>
+<td>Física Térmica y Ondulatoria</td>
+<td>Lunes</td>
+<td class="num">30</td>
+<td class="num">5</td>
+</tr>
+<tr>
+<th>13</th>
+<td class="num">39</td>
+<td>Física Térmica y Ondulatoria</td>
+<td>Miércoles</td>
+<td class="num">30</td>
+<td class="num">5</td>
+</tr>
+<tr>
+<th>14</th>
+<td class="num">40</td>
+<td>Física Térmica y Ondulatoria</td>
+<td>Viernes</td>
+<td class="num">30</td>
+<td class="num">5</td>
+</tr>
+</tbody>
+</table></div><div class="cap">15 filas × 5 columnas</div></div></div>
+<section class="cell md interp"><p><strong>Interpretación:</strong> 15 secciones tienen 5 o más inscritos, y ninguna se acerca al cupo (20-30). La ocupación máxima es 7/30 (23 %): hay capacidad sobrante, lo que permitiría consolidar secciones.</p>
+</section>
+<section class="cell md"><h2 id="parte-ii-retos-integradores">Parte II: Retos integradores</h2>
+</section>
+<section class="cell md"><h3 id="r1-reto-1-carga-academica-por-carrera">R1. Reto 1: carga académica por carrera</h3>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">sql</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">SELECT c.NOMBRE AS carrera,</span>
+<span class="s2">       f.NOMBRE AS facultad,</span>
+<span class="s2">       (SELECT COUNT(*) FROM CURSOS_CARRERAS cc WHERE cc.ID_CARRERA = c.ID_CARRERA)       AS cursos_en_malla,</span>
+<span class="s2">       (SELECT COUNT(*) FROM CARRERAS_ESTUDIANTES ce WHERE ce.ID_CARRERA = c.ID_CARRERA)  AS estudiantes</span>
+<span class="s2">FROM CARRERAS c</span>
+<span class="s2">INNER JOIN FACULTADES f ON f.ID_FACULTAD = c.ID_FACULTAD</span>
+<span class="s2">ORDER BY c.NOMBRE;</span>
+<span class="s2">"""</span>
+<span class="n">q</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><div class="table-wrap"><table class="df">
+<thead>
+<tr>
+<th></th>
+<th>carrera</th>
+<th>facultad</th>
+<th class="num">cursos_en_malla</th>
+<th class="num">estudiantes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>Filosofía</td>
+<td>Humanidades y Ciencias Sociales</td>
+<td class="num">17</td>
+<td class="num">1</td>
+</tr>
+<tr>
+<th>1</th>
+<td>Ingeniería Mecánica</td>
+<td>Ingeniería y Ciencias</td>
+<td class="num">25</td>
+<td class="num">4</td>
+</tr>
+<tr>
+<th>2</th>
+<td>Ingeniería de Sistemas</td>
+<td>Ingeniería y Ciencias</td>
+<td class="num">37</td>
+<td class="num">3</td>
+</tr>
+<tr>
+<th>3</th>
+<td>Matemáticas Aplicadas</td>
+<td>Ingeniería y Ciencias</td>
+<td class="num">22</td>
+<td class="num">2</td>
+</tr>
+</tbody>
+</table></div><div class="cap">4 filas × 4 columnas</div></div></div>
+<section class="cell md interp"><p><strong>Interpretación:</strong> Sistemas tiene la malla más larga (37 cursos), pero solo 3 estudiantes: la oferta curricular es más grande que la demanda. Mecánica tiene 25 cursos y 4 estudiantes, y Filosofía 17 cursos y 1. Se usaron subconsultas escalares para evitar el producto cartesiano.</p>
+</section>
+<section class="cell md"><h3 id="r1b-demostracion-mismo-reto-con-join-doble-sin-distinct-cont">R1b. (Demostración) Mismo reto con JOIN doble sin DISTINCT: conteos inflados</h3>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">sql</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">SELECT c.NOMBRE AS carrera,</span>
+<span class="s2">       COUNT(cc.ID_CURSO)  AS cursos_inflado,</span>
+<span class="s2">       COUNT(ce.ID_USUARIO) AS estudiantes_inflado</span>
+<span class="s2">FROM CARRERAS c</span>
+<span class="s2">LEFT JOIN CURSOS_CARRERAS cc ON cc.ID_CARRERA = c.ID_CARRERA</span>
+<span class="s2">LEFT JOIN CARRERAS_ESTUDIANTES ce ON ce.ID_CARRERA = c.ID_CARRERA</span>
+<span class="s2">GROUP BY c.ID_CARRERA, c.NOMBRE;</span>
+<span class="s2">"""</span>
+<span class="n">q</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><div class="table-wrap"><table class="df">
+<thead>
+<tr>
+<th></th>
+<th>carrera</th>
+<th class="num">cursos_inflado</th>
+<th class="num">estudiantes_inflado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>Ingeniería de Sistemas</td>
+<td class="num">111</td>
+<td class="num">111</td>
+</tr>
+<tr>
+<th>1</th>
+<td>Ingeniería Mecánica</td>
+<td class="num">100</td>
+<td class="num">100</td>
+</tr>
+<tr>
+<th>2</th>
+<td>Matemáticas Aplicadas</td>
+<td class="num">44</td>
+<td class="num">44</td>
+</tr>
+<tr>
+<th>3</th>
+<td>Filosofía</td>
+<td class="num">17</td>
+<td class="num">17</td>
+</tr>
+</tbody>
+</table></div><div class="cap">4 filas × 3 columnas</div></div></div>
+<section class="cell md interp"><p><strong>Interpretación:</strong> Demostración del error. Un JOIN doble multiplica filas: Sistemas pasa de 37 cursos y 3 estudiantes a 111 y 111 (37 × 3). Los resultados son idénticos entre sí, una señal de alerta.</p>
+</section>
+<section class="cell md note"><h3 id="reto-2-auditoria-text-to-sql-cruces-de-horario">Reto 2: Auditoría Text-to-SQL (cruces de horario)</h3>
+<blockquote>
+<p><strong>Cómo usar esta sección:</strong> pídele al agente de Antigravity <em>"Identifica qué estudiantes tienen cruces de horario (dos clases el mismo día y a la misma hora) en university_db"</em>. <strong>Pega su consulta literal en la celda a)</strong> (reemplazando el ejemplo) y compárala con la versión validada de la celda b). La consulta de la celda a) es un <strong>ejemplo típico</strong> de lo que genera un agente, no la salida real del tuyo.</p>
+</blockquote>
+<h4>a) Consulta del agente (ejemplo ingenuo, reemplázala por la tuya)</h4>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">sql_agente</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">SELECT DISTINCT u.NOMBRE, u.APELLIDO</span>
+<span class="s2">FROM USUARIOS u</span>
+<span class="s2">JOIN CURSOS_ESTUDIANTES ce1 ON ce1.ID_USUARIO = u.ID_USUARIO</span>
+<span class="s2">JOIN CURSOS_ESTUDIANTES ce2 ON ce2.ID_USUARIO = u.ID_USUARIO</span>
+<span class="s2">JOIN CALENDARIO_CURSOS c1 ON c1.ID_CALENDARIO = ce1.ID_CALENDARIO</span>
+<span class="s2">JOIN CALENDARIO_CURSOS c2 ON c2.ID_CALENDARIO = ce2.ID_CALENDARIO</span>
+<span class="s2">WHERE c1.DIA = c2.DIA</span>
+<span class="s2">  AND c1.HORA_INICIO = c2.HORA_INICIO;</span>
+<span class="s2">"""</span>
+<span class="n">q</span><span class="p">(</span><span class="n">sql_agente</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><div class="table-wrap"><table class="df">
+<thead>
+<tr>
+<th></th>
+<th>NOMBRE</th>
+<th>APELLIDO</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>Franziska</td>
+<td>Doppler</td>
+</tr>
+<tr>
+<th>1</th>
+<td>Mads</td>
+<td>Nielsen</td>
+</tr>
+<tr>
+<th>2</th>
+<td>Olive</td>
+<td>Stone</td>
+</tr>
+<tr>
+<th>3</th>
+<td>Jonas</td>
+<td>Kahnwald</td>
+</tr>
+<tr>
+<th>4</th>
+<td>Martha</td>
+<td>Nielsen</td>
+</tr>
+<tr>
+<th>5</th>
+<td>Bartosz</td>
+<td>Tiedemann</td>
+</tr>
+<tr>
+<th>6</th>
+<td>Magnus</td>
+<td>Nielsen</td>
+</tr>
+<tr>
+<th>7</th>
+<td>Angelina</td>
+<td>Meyer</td>
+</tr>
+</tbody>
+</table></div><div class="cap">8 filas × 2 columnas</div></div></div>
+<section class="cell md"><p>Devuelve 8 estudiantes, incluida <strong>Angelina Meyer</strong>, que solo tiene 2 matrículas sin cruce real (falso positivo).</p>
+</section>
+<section class="cell md"><h4>b) Consulta validada</h4>
+<p>Compara cada par de secciones del mismo estudiante (<code>x.ID_CALENDARIO &lt; y.ID_CALENDARIO</code>) y aplica <code>inicio_A &lt; fin_B AND inicio_B &lt; fin_A</code> con las horas convertidas a minutos.</p>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">sql_correcta</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">SELECT u.ID_USUARIO, u.NOMBRE || ' ' || u.APELLIDO AS estudiante,</span>
+<span class="s2">       a.ID_CALENDARIO AS seccion_a, ca.NOMBRE AS curso_a, a.DIA, a.HORA_INICIO AS ini_a, a.HORA_FIN AS fin_a,</span>
+<span class="s2">       b.ID_CALENDARIO AS seccion_b, cb.NOMBRE AS curso_b, b.HORA_INICIO AS ini_b, b.HORA_FIN AS fin_b</span>
+<span class="s2">FROM CURSOS_ESTUDIANTES x</span>
+<span class="s2">INNER JOIN CURSOS_ESTUDIANTES y ON y.ID_USUARIO = x.ID_USUARIO</span>
+<span class="s2">                               AND x.ID_CALENDARIO &lt; y.ID_CALENDARIO</span>
+<span class="s2">INNER JOIN CALENDARIO_CURSOS a ON a.ID_CALENDARIO = x.ID_CALENDARIO</span>
+<span class="s2">INNER JOIN CALENDARIO_CURSOS b ON b.ID_CALENDARIO = y.ID_CALENDARIO</span>
+<span class="s2">INNER JOIN CURSOS ca ON ca.ID_CURSO = a.ID_CURSO</span>
+<span class="s2">INNER JOIN CURSOS cb ON cb.ID_CURSO = b.ID_CURSO</span>
+<span class="s2">INNER JOIN USUARIOS u ON u.ID_USUARIO = x.ID_USUARIO</span>
+<span class="s2">WHERE a.DIA = b.DIA</span>
+<span class="s2">  AND (CAST(substr(a.HORA_INICIO,1,2) AS INTEGER) % 12 * 60 + CAST(substr(a.HORA_INICIO,4,2) AS INTEGER)</span>
+<span class="s2">       + CASE WHEN UPPER(a.HORA_INICIO) LIKE '%PM' THEN 720 ELSE 0 END) &lt; (CAST(substr(b.HORA_FIN,1,2) AS INTEGER) % 12 * 60 + CAST(substr(b.HORA_FIN,4,2) AS INTEGER)</span>
+<span class="s2">       + CASE WHEN UPPER(b.HORA_FIN) LIKE '%PM' THEN 720 ELSE 0 END)</span>
+<span class="s2">  AND (CAST(substr(b.HORA_INICIO,1,2) AS INTEGER) % 12 * 60 + CAST(substr(b.HORA_INICIO,4,2) AS INTEGER)</span>
+<span class="s2">       + CASE WHEN UPPER(b.HORA_INICIO) LIKE '%PM' THEN 720 ELSE 0 END) &lt; (CAST(substr(a.HORA_FIN,1,2) AS INTEGER) % 12 * 60 + CAST(substr(a.HORA_FIN,4,2) AS INTEGER)</span>
+<span class="s2">       + CASE WHEN UPPER(a.HORA_FIN) LIKE '%PM' THEN 720 ELSE 0 END)</span>
+<span class="s2">ORDER BY u.ID_USUARIO, a.DIA;</span>
+<span class="s2">"""</span>
+<span class="n">df_cruces</span> <span class="o">=</span> <span class="n">q</span><span class="p">(</span><span class="n">sql_correcta</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Pares en conflicto:"</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">df_cruces</span><span class="p">))</span>
+<span class="n">df_cruces</span>
+</code></pre></details><div class="outputs"><pre class="out">Pares en conflicto: 70</pre><div class="table-wrap"><table class="df">
+<thead>
+<tr>
+<th></th>
+<th class="num">ID_USUARIO</th>
+<th>estudiante</th>
+<th class="num">seccion_a</th>
+<th>curso_a</th>
+<th>DIA</th>
+<th>ini_a</th>
+<th>fin_a</th>
+<th class="num">seccion_b</th>
+<th>curso_b</th>
+<th>ini_b</th>
+<th>fin_b</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td class="num">11</td>
+<td>Olive Stone</td>
+<td class="num">16</td>
+<td>Álgebra Lineal</td>
+<td>Jueves</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">24</td>
+<td>Cálculo Integral</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+</tr>
+<tr>
+<th>1</th>
+<td class="num">11</td>
+<td>Olive Stone</td>
+<td class="num">19</td>
+<td>Teoría de Probabilidades</td>
+<td>Lunes</td>
+<td>08:00 AM</td>
+<td>10:00 AM</td>
+<td class="num">38</td>
+<td>Física Térmica y Ondulatoria</td>
+<td>08:00 AM</td>
+<td>10:00 AM</td>
+</tr>
+<tr>
+<th>2</th>
+<td class="num">11</td>
+<td>Olive Stone</td>
+<td class="num">15</td>
+<td>Álgebra Lineal</td>
+<td>Martes</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">23</td>
+<td>Cálculo Integral</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+</tr>
+<tr>
+<th>3</th>
+<td class="num">11</td>
+<td>Olive Stone</td>
+<td class="num">20</td>
+<td>Teoría de Probabilidades</td>
+<td>Miércoles</td>
+<td>08:00 AM</td>
+<td>10:00 AM</td>
+<td class="num">39</td>
+<td>Física Térmica y Ondulatoria</td>
+<td>08:00 AM</td>
+<td>10:00 AM</td>
+</tr>
+<tr>
+<th>4</th>
+<td class="num">14</td>
+<td>Jonas Kahnwald</td>
+<td class="num">16</td>
+<td>Álgebra Lineal</td>
+<td>Jueves</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">24</td>
+<td>Cálculo Integral</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+</tr>
+<tr>
+<th>5</th>
+<td class="num">14</td>
+<td>Jonas Kahnwald</td>
+<td class="num">16</td>
+<td>Álgebra Lineal</td>
+<td>Jueves</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">58</td>
+<td>Dibujo Mecánico</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+</tr>
+<tr>
+<th>6</th>
+<td class="num">14</td>
+<td>Jonas Kahnwald</td>
+<td class="num">24</td>
+<td>Cálculo Integral</td>
+<td>Jueves</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">58</td>
+<td>Dibujo Mecánico</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+</tr>
+<tr>
+<th>7</th>
+<td class="num">14</td>
+<td>Jonas Kahnwald</td>
+<td class="num">14</td>
+<td>Cálculo Diferencial</td>
+<td>Jueves</td>
+<td>08:00 AM</td>
+<td>10:00 AM</td>
+<td class="num">60</td>
+<td>Química y Ciencia de Materiales</td>
+<td>08:00 AM</td>
+<td>10:00 AM</td>
+</tr>
+<tr>
+<th>8</th>
+<td class="num">14</td>
+<td>Jonas Kahnwald</td>
+<td class="num">26</td>
+<td>Cálculo Multivariado</td>
+<td>Jueves</td>
+<td>02:00 PM</td>
+<td>04:00 PM</td>
+<td class="num">62</td>
+<td>Propiedades de los Materiales</td>
+<td>02:00 PM</td>
+<td>04:00 PM</td>
+</tr>
+<tr>
+<th>9</th>
+<td class="num">14</td>
+<td>Jonas Kahnwald</td>
+<td class="num">31</td>
+<td>Teología</td>
+<td>Lunes</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">41</td>
+<td>Termodinámica</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+</tr>
+<tr>
+<th>10</th>
+<td class="num">14</td>
+<td>Jonas Kahnwald</td>
+<td class="num">41</td>
+<td>Termodinámica</td>
+<td>Lunes</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">57</td>
+<td>Dibujo Mecánico</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+</tr>
+<tr>
+<th>11</th>
+<td class="num">14</td>
+<td>Jonas Kahnwald</td>
+<td class="num">31</td>
+<td>Teología</td>
+<td>Lunes</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">57</td>
+<td>Dibujo Mecánico</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+</tr>
+<tr>
+<th>12</th>
+<td class="num">14</td>
+<td>Jonas Kahnwald</td>
+<td class="num">15</td>
+<td>Álgebra Lineal</td>
+<td>Martes</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">23</td>
+<td>Cálculo Integral</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+</tr>
+<tr>
+<th>13</th>
+<td class="num">14</td>
+<td>Jonas Kahnwald</td>
+<td class="num">13</td>
+<td>Cálculo Diferencial</td>
+<td>Martes</td>
+<td>08:00 AM</td>
+<td>10:00 AM</td>
+<td class="num">47</td>
+<td>Mecánica de Sólidos</td>
+<td>09:00 AM</td>
+<td>12:00 PM</td>
+</tr>
+<tr>
+<th>14</th>
+<td class="num">14</td>
+<td>Jonas Kahnwald</td>
+<td class="num">15</td>
+<td>Álgebra Lineal</td>
+<td>Martes</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">47</td>
+<td>Mecánica de Sólidos</td>
+<td>09:00 AM</td>
+<td>12:00 PM</td>
+</tr>
+<tr>
+<th>15</th>
+<td class="num">14</td>
+<td>Jonas Kahnwald</td>
+<td class="num">23</td>
+<td>Cálculo Integral</td>
+<td>Martes</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">47</td>
+<td>Mecánica de Sólidos</td>
+<td>09:00 AM</td>
+<td>12:00 PM</td>
+</tr>
+<tr>
+<th>16</th>
+<td class="num">14</td>
+<td>Jonas Kahnwald</td>
+<td class="num">13</td>
+<td>Cálculo Diferencial</td>
+<td>Martes</td>
+<td>08:00 AM</td>
+<td>10:00 AM</td>
+<td class="num">59</td>
+<td>Química y Ciencia de Materiales</td>
+<td>08:00 AM</td>
+<td>10:00 AM</td>
+</tr>
+<tr>
+<th>17</th>
+<td class="num">14</td>
+<td>Jonas Kahnwald</td>
+<td class="num">47</td>
+<td>Mecánica de Sólidos</td>
+<td>Martes</td>
+<td>09:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">59</td>
+<td>Química y Ciencia de Materiales</td>
+<td>08:00 AM</td>
+<td>10:00 AM</td>
+</tr>
+<tr>
+<th>18</th>
+<td class="num">14</td>
+<td>Jonas Kahnwald</td>
+<td class="num">25</td>
+<td>Cálculo Multivariado</td>
+<td>Martes</td>
+<td>02:00 PM</td>
+<td>04:00 PM</td>
+<td class="num">61</td>
+<td>Propiedades de los Materiales</td>
+<td>02:00 PM</td>
+<td>04:00 PM</td>
+</tr>
+<tr>
+<th>19</th>
+<td class="num">15</td>
+<td>Martha Nielsen</td>
+<td class="num">16</td>
+<td>Álgebra Lineal</td>
+<td>Jueves</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">24</td>
+<td>Cálculo Integral</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+</tr>
+<tr>
+<th>20</th>
+<td class="num">15</td>
+<td>Martha Nielsen</td>
+<td class="num">19</td>
+<td>Teoría de Probabilidades</td>
+<td>Lunes</td>
+<td>08:00 AM</td>
+<td>10:00 AM</td>
+<td class="num">38</td>
+<td>Física Térmica y Ondulatoria</td>
+<td>08:00 AM</td>
+<td>10:00 AM</td>
+</tr>
+<tr>
+<th>21</th>
+<td class="num">15</td>
+<td>Martha Nielsen</td>
+<td class="num">15</td>
+<td>Álgebra Lineal</td>
+<td>Martes</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">23</td>
+<td>Cálculo Integral</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+</tr>
+<tr>
+<th>22</th>
+<td class="num">15</td>
+<td>Martha Nielsen</td>
+<td class="num">20</td>
+<td>Teoría de Probabilidades</td>
+<td>Miércoles</td>
+<td>08:00 AM</td>
+<td>10:00 AM</td>
+<td class="num">39</td>
+<td>Física Térmica y Ondulatoria</td>
+<td>08:00 AM</td>
+<td>10:00 AM</td>
+</tr>
+<tr>
+<th>23</th>
+<td class="num">16</td>
+<td>Bartosz Tiedemann</td>
+<td class="num">16</td>
+<td>Álgebra Lineal</td>
+<td>Jueves</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">24</td>
+<td>Cálculo Integral</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+</tr>
+<tr>
+<th>24</th>
+<td class="num">16</td>
+<td>Bartosz Tiedemann</td>
+<td class="num">16</td>
+<td>Álgebra Lineal</td>
+<td>Jueves</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">58</td>
+<td>Dibujo Mecánico</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+</tr>
+<tr>
+<th>25</th>
+<td class="num">16</td>
+<td>Bartosz Tiedemann</td>
+<td class="num">24</td>
+<td>Cálculo Integral</td>
+<td>Jueves</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">58</td>
+<td>Dibujo Mecánico</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+</tr>
+<tr>
+<th>26</th>
+<td class="num">16</td>
+<td>Bartosz Tiedemann</td>
+<td class="num">14</td>
+<td>Cálculo Diferencial</td>
+<td>Jueves</td>
+<td>08:00 AM</td>
+<td>10:00 AM</td>
+<td class="num">60</td>
+<td>Química y Ciencia de Materiales</td>
+<td>08:00 AM</td>
+<td>10:00 AM</td>
+</tr>
+<tr>
+<th>27</th>
+<td class="num">16</td>
+<td>Bartosz Tiedemann</td>
+<td class="num">26</td>
+<td>Cálculo Multivariado</td>
+<td>Jueves</td>
+<td>02:00 PM</td>
+<td>04:00 PM</td>
+<td class="num">62</td>
+<td>Propiedades de los Materiales</td>
+<td>02:00 PM</td>
+<td>04:00 PM</td>
+</tr>
+<tr>
+<th>28</th>
+<td class="num">16</td>
+<td>Bartosz Tiedemann</td>
+<td class="num">31</td>
+<td>Teología</td>
+<td>Lunes</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">41</td>
+<td>Termodinámica</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+</tr>
+<tr>
+<th>29</th>
+<td class="num">16</td>
+<td>Bartosz Tiedemann</td>
+<td class="num">41</td>
+<td>Termodinámica</td>
+<td>Lunes</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">57</td>
+<td>Dibujo Mecánico</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+</tr>
+<tr>
+<th>30</th>
+<td class="num">16</td>
+<td>Bartosz Tiedemann</td>
+<td class="num">31</td>
+<td>Teología</td>
+<td>Lunes</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">57</td>
+<td>Dibujo Mecánico</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+</tr>
+<tr>
+<th>31</th>
+<td class="num">16</td>
+<td>Bartosz Tiedemann</td>
+<td class="num">15</td>
+<td>Álgebra Lineal</td>
+<td>Martes</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">23</td>
+<td>Cálculo Integral</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+</tr>
+<tr>
+<th>32</th>
+<td class="num">16</td>
+<td>Bartosz Tiedemann</td>
+<td class="num">13</td>
+<td>Cálculo Diferencial</td>
+<td>Martes</td>
+<td>08:00 AM</td>
+<td>10:00 AM</td>
+<td class="num">47</td>
+<td>Mecánica de Sólidos</td>
+<td>09:00 AM</td>
+<td>12:00 PM</td>
+</tr>
+<tr>
+<th>33</th>
+<td class="num">16</td>
+<td>Bartosz Tiedemann</td>
+<td class="num">15</td>
+<td>Álgebra Lineal</td>
+<td>Martes</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">47</td>
+<td>Mecánica de Sólidos</td>
+<td>09:00 AM</td>
+<td>12:00 PM</td>
+</tr>
+<tr>
+<th>34</th>
+<td class="num">16</td>
+<td>Bartosz Tiedemann</td>
+<td class="num">23</td>
+<td>Cálculo Integral</td>
+<td>Martes</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">47</td>
+<td>Mecánica de Sólidos</td>
+<td>09:00 AM</td>
+<td>12:00 PM</td>
+</tr>
+<tr>
+<th>35</th>
+<td class="num">16</td>
+<td>Bartosz Tiedemann</td>
+<td class="num">13</td>
+<td>Cálculo Diferencial</td>
+<td>Martes</td>
+<td>08:00 AM</td>
+<td>10:00 AM</td>
+<td class="num">59</td>
+<td>Química y Ciencia de Materiales</td>
+<td>08:00 AM</td>
+<td>10:00 AM</td>
+</tr>
+<tr>
+<th>36</th>
+<td class="num">16</td>
+<td>Bartosz Tiedemann</td>
+<td class="num">47</td>
+<td>Mecánica de Sólidos</td>
+<td>Martes</td>
+<td>09:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">59</td>
+<td>Química y Ciencia de Materiales</td>
+<td>08:00 AM</td>
+<td>10:00 AM</td>
+</tr>
+<tr>
+<th>37</th>
+<td class="num">16</td>
+<td>Bartosz Tiedemann</td>
+<td class="num">25</td>
+<td>Cálculo Multivariado</td>
+<td>Martes</td>
+<td>02:00 PM</td>
+<td>04:00 PM</td>
+<td class="num">61</td>
+<td>Propiedades de los Materiales</td>
+<td>02:00 PM</td>
+<td>04:00 PM</td>
+</tr>
+<tr>
+<th>38</th>
+<td class="num">17</td>
+<td>Franziska Doppler</td>
+<td class="num">2</td>
+<td>Introducción a la Programación</td>
+<td>Jueves</td>
+<td>08:00 AM</td>
+<td>10:00 AM</td>
+<td class="num">14</td>
+<td>Cálculo Diferencial</td>
+<td>08:00 AM</td>
+<td>10:00 AM</td>
+</tr>
+<tr>
+<th>39</th>
+<td class="num">17</td>
+<td>Franziska Doppler</td>
+<td class="num">4</td>
+<td>Estructuras de Datos</td>
+<td>Jueves</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">16</td>
+<td>Álgebra Lineal</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+</tr>
+<tr>
+<th>40</th>
+<td class="num">17</td>
+<td>Franziska Doppler</td>
+<td class="num">4</td>
+<td>Estructuras de Datos</td>
+<td>Jueves</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">24</td>
+<td>Cálculo Integral</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+</tr>
+<tr>
+<th>41</th>
+<td class="num">17</td>
+<td>Franziska Doppler</td>
+<td class="num">16</td>
+<td>Álgebra Lineal</td>
+<td>Jueves</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">24</td>
+<td>Cálculo Integral</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+</tr>
+<tr>
+<th>42</th>
+<td class="num">17</td>
+<td>Franziska Doppler</td>
+<td class="num">5</td>
+<td>Técnicas y Prácticas de Programación</td>
+<td>Lunes</td>
+<td>04:00 PM</td>
+<td>06:00 PM</td>
+<td class="num">11</td>
+<td>Arquitectura del Computador</td>
+<td>04:00 PM</td>
+<td>06:00 PM</td>
+</tr>
+<tr>
+<th>43</th>
+<td class="num">17</td>
+<td>Franziska Doppler</td>
+<td class="num">1</td>
+<td>Introducción a la Programación</td>
+<td>Martes</td>
+<td>08:00 AM</td>
+<td>10:00 AM</td>
+<td class="num">13</td>
+<td>Cálculo Diferencial</td>
+<td>08:00 AM</td>
+<td>10:00 AM</td>
+</tr>
+<tr>
+<th>44</th>
+<td class="num">17</td>
+<td>Franziska Doppler</td>
+<td class="num">3</td>
+<td>Estructuras de Datos</td>
+<td>Martes</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">15</td>
+<td>Álgebra Lineal</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+</tr>
+<tr>
+<th>45</th>
+<td class="num">17</td>
+<td>Franziska Doppler</td>
+<td class="num">3</td>
+<td>Estructuras de Datos</td>
+<td>Martes</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">23</td>
+<td>Cálculo Integral</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+</tr>
+<tr>
+<th>46</th>
+<td class="num">17</td>
+<td>Franziska Doppler</td>
+<td class="num">15</td>
+<td>Álgebra Lineal</td>
+<td>Martes</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">23</td>
+<td>Cálculo Integral</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+</tr>
+<tr>
+<th>47</th>
+<td class="num">17</td>
+<td>Franziska Doppler</td>
+<td class="num">9</td>
+<td>Lógica Digital y Lenguaje de Máquina</td>
+<td>Miércoles</td>
+<td>02:00 PM</td>
+<td>04:00 PM</td>
+<td class="num">36</td>
+<td>Cinemática y Dinámica</td>
+<td>02:00 PM</td>
+<td>04:00 PM</td>
+</tr>
+<tr>
+<th>48</th>
+<td class="num">17</td>
+<td>Franziska Doppler</td>
+<td class="num">10</td>
+<td>Lógica Digital y Lenguaje de Máquina</td>
+<td>Viernes</td>
+<td>02:00 PM</td>
+<td>04:00 PM</td>
+<td class="num">37</td>
+<td>Cinemática y Dinámica</td>
+<td>02:00 PM</td>
+<td>04:00 PM</td>
+</tr>
+<tr>
+<th>49</th>
+<td class="num">19</td>
+<td>Magnus Nielsen</td>
+<td class="num">16</td>
+<td>Álgebra Lineal</td>
+<td>Jueves</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">24</td>
+<td>Cálculo Integral</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+</tr>
+<tr>
+<th>50</th>
+<td class="num">19</td>
+<td>Magnus Nielsen</td>
+<td class="num">14</td>
+<td>Cálculo Diferencial</td>
+<td>Jueves</td>
+<td>08:00 AM</td>
+<td>10:00 AM</td>
+<td class="num">48</td>
+<td>Mecánica de Fluidos</td>
+<td>09:00 AM</td>
+<td>12:00 PM</td>
+</tr>
+<tr>
+<th>51</th>
+<td class="num">19</td>
+<td>Magnus Nielsen</td>
+<td class="num">16</td>
+<td>Álgebra Lineal</td>
+<td>Jueves</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">48</td>
+<td>Mecánica de Fluidos</td>
+<td>09:00 AM</td>
+<td>12:00 PM</td>
+</tr>
+<tr>
+<th>52</th>
+<td class="num">19</td>
+<td>Magnus Nielsen</td>
+<td class="num">24</td>
+<td>Cálculo Integral</td>
+<td>Jueves</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">48</td>
+<td>Mecánica de Fluidos</td>
+<td>09:00 AM</td>
+<td>12:00 PM</td>
+</tr>
+<tr>
+<th>53</th>
+<td class="num">19</td>
+<td>Magnus Nielsen</td>
+<td class="num">48</td>
+<td>Mecánica de Fluidos</td>
+<td>Jueves</td>
+<td>09:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">58</td>
+<td>Dibujo Mecánico</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+</tr>
+<tr>
+<th>54</th>
+<td class="num">19</td>
+<td>Magnus Nielsen</td>
+<td class="num">16</td>
+<td>Álgebra Lineal</td>
+<td>Jueves</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">58</td>
+<td>Dibujo Mecánico</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+</tr>
+<tr>
+<th>55</th>
+<td class="num">19</td>
+<td>Magnus Nielsen</td>
+<td class="num">24</td>
+<td>Cálculo Integral</td>
+<td>Jueves</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">58</td>
+<td>Dibujo Mecánico</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+</tr>
+<tr>
+<th>56</th>
+<td class="num">19</td>
+<td>Magnus Nielsen</td>
+<td class="num">14</td>
+<td>Cálculo Diferencial</td>
+<td>Jueves</td>
+<td>08:00 AM</td>
+<td>10:00 AM</td>
+<td class="num">60</td>
+<td>Química y Ciencia de Materiales</td>
+<td>08:00 AM</td>
+<td>10:00 AM</td>
+</tr>
+<tr>
+<th>57</th>
+<td class="num">19</td>
+<td>Magnus Nielsen</td>
+<td class="num">48</td>
+<td>Mecánica de Fluidos</td>
+<td>Jueves</td>
+<td>09:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">60</td>
+<td>Química y Ciencia de Materiales</td>
+<td>08:00 AM</td>
+<td>10:00 AM</td>
+</tr>
+<tr>
+<th>58</th>
+<td class="num">19</td>
+<td>Magnus Nielsen</td>
+<td class="num">26</td>
+<td>Cálculo Multivariado</td>
+<td>Jueves</td>
+<td>02:00 PM</td>
+<td>04:00 PM</td>
+<td class="num">62</td>
+<td>Propiedades de los Materiales</td>
+<td>02:00 PM</td>
+<td>04:00 PM</td>
+</tr>
+<tr>
+<th>59</th>
+<td class="num">19</td>
+<td>Magnus Nielsen</td>
+<td class="num">31</td>
+<td>Teología</td>
+<td>Lunes</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">41</td>
+<td>Termodinámica</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+</tr>
+<tr>
+<th>60</th>
+<td class="num">19</td>
+<td>Magnus Nielsen</td>
+<td class="num">41</td>
+<td>Termodinámica</td>
+<td>Lunes</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">57</td>
+<td>Dibujo Mecánico</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+</tr>
+<tr>
+<th>61</th>
+<td class="num">19</td>
+<td>Magnus Nielsen</td>
+<td class="num">31</td>
+<td>Teología</td>
+<td>Lunes</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">57</td>
+<td>Dibujo Mecánico</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+</tr>
+<tr>
+<th>62</th>
+<td class="num">19</td>
+<td>Magnus Nielsen</td>
+<td class="num">15</td>
+<td>Álgebra Lineal</td>
+<td>Martes</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">23</td>
+<td>Cálculo Integral</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+</tr>
+<tr>
+<th>63</th>
+<td class="num">19</td>
+<td>Magnus Nielsen</td>
+<td class="num">13</td>
+<td>Cálculo Diferencial</td>
+<td>Martes</td>
+<td>08:00 AM</td>
+<td>10:00 AM</td>
+<td class="num">47</td>
+<td>Mecánica de Sólidos</td>
+<td>09:00 AM</td>
+<td>12:00 PM</td>
+</tr>
+<tr>
+<th>64</th>
+<td class="num">19</td>
+<td>Magnus Nielsen</td>
+<td class="num">15</td>
+<td>Álgebra Lineal</td>
+<td>Martes</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">47</td>
+<td>Mecánica de Sólidos</td>
+<td>09:00 AM</td>
+<td>12:00 PM</td>
+</tr>
+<tr>
+<th>65</th>
+<td class="num">19</td>
+<td>Magnus Nielsen</td>
+<td class="num">23</td>
+<td>Cálculo Integral</td>
+<td>Martes</td>
+<td>10:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">47</td>
+<td>Mecánica de Sólidos</td>
+<td>09:00 AM</td>
+<td>12:00 PM</td>
+</tr>
+<tr>
+<th>66</th>
+<td class="num">19</td>
+<td>Magnus Nielsen</td>
+<td class="num">13</td>
+<td>Cálculo Diferencial</td>
+<td>Martes</td>
+<td>08:00 AM</td>
+<td>10:00 AM</td>
+<td class="num">59</td>
+<td>Química y Ciencia de Materiales</td>
+<td>08:00 AM</td>
+<td>10:00 AM</td>
+</tr>
+<tr>
+<th>67</th>
+<td class="num">19</td>
+<td>Magnus Nielsen</td>
+<td class="num">47</td>
+<td>Mecánica de Sólidos</td>
+<td>Martes</td>
+<td>09:00 AM</td>
+<td>12:00 PM</td>
+<td class="num">59</td>
+<td>Química y Ciencia de Materiales</td>
+<td>08:00 AM</td>
+<td>10:00 AM</td>
+</tr>
+<tr>
+<th>68</th>
+<td class="num">19</td>
+<td>Magnus Nielsen</td>
+<td class="num">25</td>
+<td>Cálculo Multivariado</td>
+<td>Martes</td>
+<td>02:00 PM</td>
+<td>04:00 PM</td>
+<td class="num">61</td>
+<td>Propiedades de los Materiales</td>
+<td>02:00 PM</td>
+<td>04:00 PM</td>
+</tr>
+<tr>
+<th>69</th>
+<td class="num">20</td>
+<td>Mads Nielsen</td>
+<td class="num">1</td>
+<td>Introducción a la Programación</td>
+<td>Martes</td>
+<td>08:00 AM</td>
+<td>10:00 AM</td>
+<td class="num">13</td>
+<td>Cálculo Diferencial</td>
+<td>08:00 AM</td>
+<td>10:00 AM</td>
+</tr>
+</tbody>
+</table></div><div class="cap">70 filas × 11 columnas</div></div></div>
+<section class="cell md"><h4>c) Resumen por estudiante</h4>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">df_cruces</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">'estudiante'</span><span class="p">)</span><span class="o">.</span><span class="n">size</span><span class="p">()</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s1">'pares_en_conflicto'</span><span class="p">)</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span>
+</code></pre></details><div class="outputs"><div class="table-wrap"><table class="df">
+<thead>
+<tr>
+<th></th>
+<th class="num">pares_en_conflicto</th>
+</tr>
+<tr>
+<th>estudiante</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>Magnus Nielsen</th>
+<td class="num">20</td>
+</tr>
+<tr>
+<th>Jonas Kahnwald</th>
+<td class="num">15</td>
+</tr>
+<tr>
+<th>Bartosz Tiedemann</th>
+<td class="num">15</td>
+</tr>
+<tr>
+<th>Franziska Doppler</th>
+<td class="num">11</td>
+</tr>
+<tr>
+<th>Martha Nielsen</th>
+<td class="num">4</td>
+</tr>
+<tr>
+<th>Olive Stone</th>
+<td class="num">4</td>
+</tr>
+<tr>
+<th>Mads Nielsen</th>
+<td class="num">1</td>
+</tr>
+</tbody>
+</table></div><div class="cap">7 filas × 3 columnas</div></div></div>
+<section class="cell md"><h4>d) Comparación cuantitativa de las dos versiones</h4>
+</section>
+<div class="chunk"><details class="code" open=""><summary>Código</summary><pre class="src"><code class="hl"><span class="n">sql_fix</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">SELECT DISTINCT u.NOMBRE, u.APELLIDO</span>
+<span class="s2">FROM USUARIOS u</span>
+<span class="s2">JOIN CURSOS_ESTUDIANTES ce1 ON ce1.ID_USUARIO = u.ID_USUARIO</span>
+<span class="s2">JOIN CURSOS_ESTUDIANTES ce2 ON ce2.ID_USUARIO = u.ID_USUARIO</span>
+<span class="s2">JOIN CALENDARIO_CURSOS c1 ON c1.ID_CALENDARIO = ce1.ID_CALENDARIO</span>
+<span class="s2">JOIN CALENDARIO_CURSOS c2 ON c2.ID_CALENDARIO = ce2.ID_CALENDARIO</span>
+<span class="s2">WHERE ce1.ID_CALENDARIO &lt;&gt; ce2.ID_CALENDARIO</span>
+<span class="s2">  AND c1.DIA = c2.DIA</span>
+<span class="s2">  AND c1.HORA_INICIO = c2.HORA_INICIO;</span>
+<span class="s2">"""</span>
+<span class="n">pares_ingenuo</span> <span class="o">=</span> <span class="n">q</span><span class="p">(</span><span class="s2">"""</span>
+<span class="s2">SELECT COUNT(*) AS n FROM CURSOS_ESTUDIANTES x</span>
+<span class="s2">JOIN CURSOS_ESTUDIANTES y ON y.ID_USUARIO=x.ID_USUARIO AND x.ID_CALENDARIO&lt;y.ID_CALENDARIO</span>
+<span class="s2">JOIN CALENDARIO_CURSOS a ON a.ID_CALENDARIO=x.ID_CALENDARIO</span>
+<span class="s2">JOIN CALENDARIO_CURSOS b ON b.ID_CALENDARIO=y.ID_CALENDARIO</span>
+<span class="s2">WHERE a.DIA=b.DIA AND a.HORA_INICIO=b.HORA_INICIO"""</span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Estudiantes - agente ingenuo:"</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">q</span><span class="p">(</span><span class="n">sql_agente</span><span class="p">)))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Estudiantes - agente con &lt;&gt; arreglado:"</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">q</span><span class="p">(</span><span class="n">sql_fix</span><span class="p">)))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Estudiantes - consulta validada:"</span><span class="p">,</span> <span class="n">df_cruces</span><span class="p">[</span><span class="s1">'ID_USUARIO'</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Pares detectados por igualdad de hora de inicio: </span><span class="si">{</span><span class="n">pares_ingenuo</span><span class="si">}</span><span class="s2"> de </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">df_cruces</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</code></pre></details><div class="outputs"><pre class="out">Estudiantes - agente ingenuo: 8
+Estudiantes - agente con &lt;&gt; arreglado: 7
+Estudiantes - consulta validada: 7
+Pares detectados por igualdad de hora de inicio: 53 de 70</pre></div></div>
+<section class="cell md"><h4>e) Análisis crítico</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Posible error</th>
+<th>¿Ocurre en el ejemplo?</th>
+<th>Efecto</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>Comparar una sección consigo misma</strong> (falta <code>ce1.ID_CALENDARIO &lt;&gt; ce2.ID_CALENDARIO</code>)</td>
+<td><strong>Sí</strong></td>
+<td>Todo estudiante con al menos una clase se marca como conflicto; aparece Angelina Meyer como falso positivo.</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Ignorar solapamientos parciales</strong> (compara <code>HORA_INICIO</code> por igualdad)</td>
+<td><strong>Sí</strong></td>
+<td>No detecta, por ejemplo, <em>Mecánica de Sólidos</em> (09:00-12:00) frente a <em>Álgebra Lineal</em> (10:00-12:00).</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>Comparar horas como texto</strong></td>
+<td>Latente</td>
+<td>Con <code>&lt;</code> o <code>&gt;</code> falla (<code>'02:00 PM' &lt; '10:00 AM'</code>); además hay un <code>'04:00PM'</code> sin espacio.</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>Duplicados simétricos</strong> (A,B) y (B,A)</td>
+<td>Ocultos por <code>DISTINCT</code></td>
+<td>Si se cuentan pares, se duplican; se evita con <code>&lt;</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>Corrigiendo solo la autocomparación, el ejemplo devuelve los 7 estudiantes correctos pero detecta únicamente 53 de los 70 pares: 17 solapamientos parciales quedan sin detectar. Es el caso más peligroso del Text-to-SQL: no lanza error y el resultado parece razonable.</p>
+<p><strong>Interpretación para gestión académica:</strong> 7 de los 8 estudiantes con matrículas tienen cruces. Magnus Nielsen (20 pares), Jonas Kahnwald y Bartosz Tiedemann (15 cada uno) concentran la mayoría. Los patrones se repiten (por ejemplo, Álgebra Lineal con Cálculo Integral los martes y jueves a las 10:00 AM), lo que apunta a un problema de <strong>programación de la oferta</strong> más que de decisiones individuales. Se recomienda mover una de las dos secciones o bloquear la matrícula conjunta.</p>
+<p><strong>Lecciones:</strong> (1) pedir al agente que explique la lógica del solapamiento; (2) validar contra un caso conocido; (3) revisar tipos de datos antes de comparar; (4) contrastar conteos entre dos versiones de la consulta.</p>
+</section>
+<section class="cell md"><h2 id="resumen-ejecutivo">Resumen ejecutivo</h2>
+<ul>
+<li>10 profesores, 10 estudiantes, 4 carreras, 71 cursos y 72 secciones.</li>
+<li>48 de 71 cursos no tienen matrículas; 35 ni siquiera tienen horario.</li>
+<li>Ocupación máxima por sección: 7 inscritos sobre un cupo de 30.</li>
+<li>Saanvi Bahl dicta 18 de 72 secciones (25 %).</li>
+<li>70 pares de secciones en conflicto en 7 estudiantes.</li>
+<li>Calidad de datos: un curso sin facultad (<code>Trabajo de Grado</code>), una hora con formato distinto (<code>04:00PM</code>) y horas guardadas como texto.</li>
+</ul>
+</section>
+<footer>Generado a partir de Taller_SQL_university.ipynb · 52 celdas de código ejecutadas</footer>
+</main>
+</div>
+<script>
+(function(){
+  var det=[].slice.call(document.querySelectorAll('details.code'));
+  document.getElementById('hide-code').onclick=function(){det.forEach(function(d){d.open=false})};
+  document.getElementById('show-code').onclick=function(){det.forEach(function(d){d.open=true})};
+  window.addEventListener('beforeprint',function(){det.forEach(function(d){d.dataset.was=d.open;d.open=true})});
+  window.addEventListener('afterprint',function(){det.forEach(function(d){d.open=d.dataset.was==='true'})});
+  var heads=[].slice.call(document.querySelectorAll('main h2[id], main h3[id]'));
+  var links={};
+  document.querySelectorAll('nav.side ul.toc a').forEach(function(a){links[a.getAttribute('href').slice(1)]=a});
+  var current=null;
+  function setActive(id){
+    if(id===current)return; current=id;
+    Object.keys(links).forEach(function(k){links[k].classList.remove('active')});
+    document.querySelectorAll('nav.side li.h2').forEach(function(li){li.classList.remove('open')});
+    var a=links[id]; if(!a)return;
+    a.classList.add('active');
+    var li=a.closest('li.h2'); if(li)li.classList.add('open');
+    var nav=document.querySelector('nav.side'), r=a.getBoundingClientRect(), nr=nav.getBoundingClientRect();
+    if(r.top<nr.top+40||r.bottom>nr.bottom-40) nav.scrollTop+=r.top-nr.top-nr.height/3;
+  }
+  function onScroll(){
+    var y=window.scrollY+120, pick=heads[0];
+    for(var i=0;i<heads.length;i++){ if(heads[i].offsetTop<=y) pick=heads[i]; else break; }
+    if(pick) setActive(pick.id);
+  }
+  window.addEventListener('scroll',onScroll,{passive:true}); onScroll();
+  document.querySelectorAll('nav.mobile a').forEach(function(a){a.addEventListener('click',function(){a.closest('details').open=false})});
+})();
+</script>
+</body>
+</html>

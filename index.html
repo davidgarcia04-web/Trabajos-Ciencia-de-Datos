@@ -351,6 +351,11 @@
       color: #b45309;
     }
 
+    .badge-sql {
+      background: #ede9fe;
+      color: #6d28d9;
+    }
+
     .project-title {
       font-size: 1.2rem;
       font-weight: 700;
@@ -654,6 +659,7 @@
     .type-rmd { background: #e0e7ff; color: #3730a3; }
     .type-csv { background: #dcfce7; color: #15803d; }
     .type-txt { background: #f3e8ff; color: #7e22ce; }
+    .type-sqlite { background: #e0f2fe; color: #0369a1; }
     .type-pdf { background: #fef2f2; color: #991b1b; }
     .type-md { background: #e2e8f0; color: #334155; }
 
@@ -764,6 +770,10 @@
           <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M11.251.068a.5.5 0 0 1 .227.58L9.677 6.5H13a.5.5 0 0 1 .364.843l-8 8.5a.5.5 0 0 1-.842-.49L6.323 9.5H3a.5.5 0 0 1-.364-.843l8-8.5a.5.5 0 0 1 .615-.09z"/></svg>
           Taller II: Consumo UPTC
         </button>
+        <button class="tab-btn" id="tab-taller3" onclick="switchTab('taller3')">
+          <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M4 1h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2zm0 1a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1H4z"/><path d="M4.5 10.5a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5zm0-3a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5zm0-3a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5z"/></svg>
+          Taller 3: SQL & Analítica
+        </button>
         <button class="tab-btn" id="tab-files" onclick="switchTab('files')">
           <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z"/></svg>
           Explorador de Archivos
@@ -793,7 +803,7 @@
         <div class="hero-meta">
           <div>👤 Autor: <strong>David Santiago Garcia Zorro</strong></div>
           <div>🏛️ Institución: <strong>UPTC</strong></div>
-          <div>💻 Lenguajes: <strong>Python & R</strong></div>
+          <div>💻 Lenguajes & Motores: <strong>Python, SQL (SQLite) & R</strong></div>
           <div>📊 Visualizaciones: <strong>Reportes HTML Interactivos</strong></div>
         </div>
       </div>
@@ -803,14 +813,14 @@
         <div class="stat-card">
           <div class="stat-icon" style="background: #eff6ff; color: #2563eb;">📑</div>
           <div class="stat-info">
-            <div class="stat-num">2</div>
+            <div class="stat-num">3</div>
             <div class="stat-label">Proyectos Completos</div>
           </div>
         </div>
         <div class="stat-card">
           <div class="stat-icon" style="background: #ecfdf5; color: #059669;">🌐</div>
           <div class="stat-info">
-            <div class="stat-num">2</div>
+            <div class="stat-num">3</div>
             <div class="stat-label">Reportes Web Listos</div>
           </div>
         </div>
@@ -818,7 +828,7 @@
           <div class="stat-icon" style="background: #fffbeb; color: #d97706;">💾</div>
           <div class="stat-info">
             <div class="stat-num">~76 MB</div>
-            <div class="stat-label">Microdatos y Datasets</div>
+            <div class="stat-label">Datasets & SQLite DB</div>
           </div>
         </div>
         <div class="stat-card">
@@ -914,6 +924,47 @@
           </div>
         </div>
 
+        <!-- Proyecto 3: SQL & Analítica Académica -->
+        <div class="project-card">
+          <div class="card-header">
+            <span class="badge-pill badge-sql">SQLite • Python • Text-to-SQL</span>
+            <h4 class="project-title">Taller 3: Fundamentos de SQL y Analítica Académica (university.db)</h4>
+          </div>
+          <div class="project-card-body">
+            <p class="project-summary">
+              Resolución de consultas analíticas complejas sobre base de datos universitaria relacional (Bloques A-E), diagnóstico de integridad, control de cupos y auditoría de cruces de horarios generados por modelos Text-to-SQL.
+            </p>
+            <ul class="card-bullets">
+              <li>Bloques A y B: Exploración, ordenamiento, LIKE y manipulación de datos (DML transaccional).</li>
+              <li>Bloques C y D: Cruces relacionales avanzados (INNER/LEFT JOIN) y detección de registros huérfanos.</li>
+              <li>Bloque E: Agregaciones estadísticas, GROUP BY, HAVING, análisis de demanda y cupos.</li>
+              <li>Parte II: Retos integradores de carga académica por carrera y auditoría de prompt Text-to-SQL.</li>
+            </ul>
+            <div class="tech-stack">
+              <span class="tech-item">SQLite</span>
+              <span class="tech-item">Python / Pandas</span>
+              <span class="tech-item">DML & DDL</span>
+              <span class="tech-item">Relational Joins</span>
+              <span class="tech-item">Text-to-SQL LLM</span>
+            </div>
+          </div>
+          <div class="card-footer">
+            <button class="btn btn-primary" onclick="switchTab('taller3')">
+              <svg width="15" height="15" fill="currentColor" viewBox="0 0 16 16"><path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/><path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/></svg>
+              Ver Reporte Interactivo
+            </button>
+            <a href="Taller%203%20Fundamentos%20de%20SQL,%20An%C3%A1lisis%20Acad%C3%A9mico%20y%20Flujos%20Text-to-SQL/Taller_SQL_university.ipynb" download class="btn btn-secondary">
+              📥 Descargar .ipynb
+            </a>
+            <a href="Taller%203%20Fundamentos%20de%20SQL,%20An%C3%A1lisis%20Acad%C3%A9mico%20y%20Flujos%20Text-to-SQL/university.db" download class="btn btn-secondary">
+              💾 Descargar .db
+            </a>
+            <a href="Taller%203%20Fundamentos%20de%20SQL,%20An%C3%A1lisis%20Acad%C3%A9mico%20y%20Flujos%20Text-to-SQL/Taller_SQL_university.html" target="_blank" class="btn btn-outline">
+              ↗ Nueva Pestaña
+            </a>
+          </div>
+        </div>
+
       </div>
 
     </section>
@@ -967,7 +1018,31 @@
     </section>
 
 
-    <!-- TAB 4: FILE EXPLORER -->
+    <!-- TAB 4: VIEWER TALLER 3 -->
+    <section id="view-taller3" class="view-panel">
+      <div class="viewer-card">
+        <div class="viewer-toolbar">
+          <div class="viewer-title-group">
+            <h2>💾 Taller 3: Analítica Académica sobre university.db</h2>
+            <p>Reporte interactivo con consultas SQL, tablas de resultados Pandas, retos integradores y Text-to-SQL</p>
+          </div>
+          <div class="viewer-actions">
+            <button class="btn btn-secondary" onclick="reloadIframe('frame-taller3')">
+              🔄 Recargar
+            </button>
+            <a href="Taller%203%20Fundamentos%20de%20SQL,%20An%C3%A1lisis%20Acad%C3%A9mico%20y%20Flujos%20Text-to-SQL/Taller_SQL_university.html" target="_blank" class="btn btn-primary">
+              ↗ Abrir en Pantalla Completa
+            </a>
+          </div>
+        </div>
+        <div class="iframe-wrapper">
+          <iframe id="frame-taller3" src="Taller%203%20Fundamentos%20de%20SQL,%20An%C3%A1lisis%20Acad%C3%A9mico%20y%20Flujos%20Text-to-SQL/Taller_SQL_university.html" title="Taller 3 Reporte SQL"></iframe>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- TAB 5: FILE EXPLORER -->
     <section id="view-files" class="view-panel">
       <h3 class="section-title">
         <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H4z"/><path d="M4.5 4a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1h-7zM4 6.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm.5 2.5a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1h-7z"/></svg>
@@ -984,6 +1059,7 @@
           <button class="filter-pill active" onclick="setFilter('all', this)">Todos</button>
           <button class="filter-pill" onclick="setFilter('html', this)">HTML</button>
           <button class="filter-pill" onclick="setFilter('ipynb', this)">Notebooks</button>
+          <button class="filter-pill" onclick="setFilter('sql', this)">SQL / DB</button>
           <button class="filter-pill" onclick="setFilter('rmd', this)">R Markdown</button>
           <button class="filter-pill" onclick="setFilter('data', this)">Datasets</button>
           <button class="filter-pill" onclick="setFilter('doc', this)">Documentación</button>
@@ -1150,6 +1226,71 @@
               </td>
             </tr>
 
+            <!-- Taller 3 Files -->
+            <tr data-cat="html" data-text="taller 3 sql university taller_sql_university html reporte analitica academica text to sql">
+              <td>
+                <div class="file-name-cell">
+                  <span class="file-icon">🌐</span>
+                  <span>Taller_SQL_university.html</span>
+                </div>
+              </td>
+              <td>Taller 3: SQL & Analítica</td>
+              <td><span class="type-badge type-html">HTML</span></td>
+              <td>181 KB</td>
+              <td>Reporte interactivo de analítica académica con consultas SQL, tablas y retos.</td>
+              <td>
+                <button class="btn btn-outline" onclick="switchTab('taller3')">Ver en Visor</button>
+              </td>
+            </tr>
+
+            <tr data-cat="ipynb" data-text="taller 3 notebook jupyter taller_sql_university ipynb sqlite python pandas bloques a b c d e">
+              <td>
+                <div class="file-name-cell">
+                  <span class="file-icon">🪐</span>
+                  <span>Taller_SQL_university.ipynb</span>
+                </div>
+              </td>
+              <td>Taller 3: SQL & Analítica</td>
+              <td><span class="type-badge type-ipynb">IPYNB</span></td>
+              <td>325 KB</td>
+              <td>Cuaderno de Jupyter con la resolución de los Bloques A-E y retos integradores.</td>
+              <td>
+                <a href="Taller%203%20Fundamentos%20de%20SQL,%20An%C3%A1lisis%20Acad%C3%A9mico%20y%20Flujos%20Text-to-SQL/Taller_SQL_university.ipynb" download class="btn btn-secondary">Descargar</a>
+              </td>
+            </tr>
+
+            <tr data-cat="sql data" data-text="taller 3 base datos sqlite university db relacional facultades cursos estudiantes matriculas">
+              <td>
+                <div class="file-name-cell">
+                  <span class="file-icon">💾</span>
+                  <span>university.db</span>
+                </div>
+              </td>
+              <td>Taller 3: SQL & Analítica</td>
+              <td><span class="type-badge type-sqlite">SQLITE / DB</span></td>
+              <td>68 KB</td>
+              <td>Base de datos relacional SQLite con tablas de usuarios, cursos, matrículas y roles.</td>
+              <td>
+                <a href="Taller%203%20Fundamentos%20de%20SQL,%20An%C3%A1lisis%20Acad%C3%A9mico%20y%20Flujos%20Text-to-SQL/university.db" download class="btn btn-secondary">Descargar</a>
+              </td>
+            </tr>
+
+            <tr data-cat="doc" data-text="taller 3 guia pdf taller sql ia antigravity rubrica requerimientos">
+              <td>
+                <div class="file-name-cell">
+                  <span class="file-icon">📕</span>
+                  <span>Taller_SQL_IA_Antigravity (2).pdf</span>
+                </div>
+              </td>
+              <td>Taller 3: SQL & Analítica</td>
+              <td><span class="type-badge type-pdf">PDF</span></td>
+              <td>92 KB</td>
+              <td>Documento formal del taller de SQL, analítica académica y flujos Text-to-SQL.</td>
+              <td>
+                <a href="Taller%203%20Fundamentos%20de%20SQL,%20An%C3%A1lisis%20Acad%C3%A9mico%20y%20Flujos%20Text-to-SQL/Taller_SQL_IA_Antigravity%20(2).pdf" target="_blank" class="btn btn-secondary">Abrir PDF</a>
+              </td>
+            </tr>
+
             <tr data-cat="doc" data-text="raiz readme md documentacion general repositorio github">
               <td>
                 <div class="file-name-cell">
@@ -1273,6 +1414,7 @@
           <ul>
             <li><strong>Tarea I: Análisis Exploratorio de Datos:</strong> Arbolado Urbano de Bogotá D.C. usando R y R Markdown con datos del censo DANE.</li>
             <li><strong>Taller Práctico II: Consumo Energético:</strong> Diagnóstico y preparación de datos de consumo eléctrico en sedes UPTC con Python y Jupyter Notebooks.</li>
+            <li><strong>Taller 3: Fundamentos de SQL & Analítica:</strong> Consultas relacionales, auditoría de huérfanos y retos Text-to-SQL sobre university.db.</li>
           </ul>
         `
       }
